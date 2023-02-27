@@ -31,6 +31,11 @@ import com.triangle.n12medic.ui.components.DotsIndicator
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 
 class OnboardActivity : ComponentActivity() {
+
+    companion object {
+        const val IS_FIRST_LAUNCH_KEY = "isFirstLaunch"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -146,11 +151,13 @@ class OnboardActivity : ComponentActivity() {
         }
     }
 
-    fun saveFirstLaunchTag() {
-        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+    private fun saveFirstLaunchTag() {
+        val sharedPreferencesName = "shared"
+
+        val sharedPreferences = this.getSharedPreferences(sharedPreferencesName, MODE_PRIVATE)
 
         with(sharedPreferences.edit()) {
-            putBoolean("isFirstLaunch", false)
+            putBoolean(IS_FIRST_LAUNCH_KEY, false)
             apply()
         }
     }
