@@ -53,7 +53,7 @@ class OnboardActivity : ComponentActivity() {
     fun OnboradScreenContent() {
         val mContext = LocalContext.current
 
-        val screenTitles = listOf("Анализы.", "Уведомления.", "Мониторинг.")
+        val screenTitles = listOf("Анализы", "Уведомления", "Мониторинг")
         val screenDescriptions = listOf("Экспресс сбор и получение проб", "Вы быстро узнаете о результатах", "Наши врачи всегда наблюдают за вашими показателями здоровья")
         val screenImages = listOf(R.drawable.splash_1, R.drawable.splash_2, R.drawable.splash_3)
 
@@ -64,9 +64,9 @@ class OnboardActivity : ComponentActivity() {
         LaunchedEffect(pagerState) {
             snapshotFlow { pagerState.currentPage }.collect() {
                 buttonLabel = if (it == screenTitles.size - 1) {
-                    "Завершить."
+                    "Завершить"
                 } else {
-                    "Пропустить."
+                    "Пропустить"
                 }
             }
         }
@@ -86,7 +86,7 @@ class OnboardActivity : ComponentActivity() {
                         val intent = Intent(mContext, AuthActivity::class.java)
                         startActivity(intent)
 
-                        //saveFirstLaunchTag()
+                        saveFirstLaunchTag()
                     }
                 )
                 Image(
