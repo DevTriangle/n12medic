@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 
 class AuthActivity : ComponentActivity() {
@@ -15,7 +16,9 @@ class AuthActivity : ComponentActivity() {
         setContent {
             N12MedicTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("authScreen"),
                     color = MaterialTheme.colors.background
                 ) {
 

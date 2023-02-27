@@ -2,6 +2,7 @@ package com.triangle.n12medic.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,15 +52,14 @@ class OnboardActivity : ComponentActivity() {
     @Composable
     fun OnboradScreenContent() {
         val mContext = LocalContext.current
-        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+
+        val screenTitles = listOf("Анализы", "Уведомления", "Мониторинг")
+        val screenDescriptions = listOf("Экспресс сбор и получение проб", "Вы быстро узнаете о результатах", "Наши врачи всегда наблюдают за вашими показателями здоровья")
+        val screenImages = listOf(R.drawable.splash_1, R.drawable.splash_2, R.drawable.splash_3)
 
         var buttonLabel by rememberSaveable { mutableStateOf("") }
 
         val pagerState = rememberPagerState()
-
-        val screenTitles = listOf("Анализы", "Уведомления", "Мониторинг")
-        val screenDescriptions = listOf("Экспресс сбор и получение проб", "Вы быстро узнаете о результатах", "Наши врачи всегда наблюдают за вашими показателями здоровья")
-        val screenImages = listOf(painterResource(id = R.drawable.splash_1), painterResource(id = R.drawable.splash_2), painterResource(id = R.drawable.splash_3))
 
         LaunchedEffect(pagerState) {
             snapshotFlow { pagerState.currentPage }.collect() {
@@ -85,10 +86,7 @@ class OnboardActivity : ComponentActivity() {
                         val intent = Intent(mContext, AuthActivity::class.java)
                         startActivity(intent)
 
-                        with(sharedPreferences.edit()) {
-                            putBoolean("isFirstLaunch", false)
-                            apply()
-                        }
+                        saveFirstLaunchTag()
                     }
                 )
                 Image(
@@ -98,7 +96,8 @@ class OnboardActivity : ComponentActivity() {
             }
             HorizontalPager(
                 modifier = Modifier
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .testTag("pager"),
                 count = 3,
                 state = pagerState
             ) { index ->
@@ -118,6 +117,8 @@ class OnboardActivity : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
+                                modifier = Modifier
+                                    .testTag("title"),
                                 text = screenTitles[index],
                                 fontSize = 20.sp,
                                 color = Color(0xFF00B712),
@@ -136,12 +137,21 @@ class OnboardActivity : ComponentActivity() {
                             currentIndex = index
                         )
                         Image(
-                            painter = screenImages[index],
+                            painter = painterResource(id = screenImages[index]),
                             contentDescription = ""
                         )
                     }
                 }
             }
+        }
+    }
+
+    fun saveFirstLaunchTag() {
+        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+
+        with(sharedPreferences.edit()) {
+            putBoolean("isFirstLaunch", false)
+            apply()
         }
     }
 }
