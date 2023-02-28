@@ -2,7 +2,8 @@ package com.triangle.n12medic.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val primaryColor = Color(0xFF57A9FF)
+val primaryColor = Color(0xFF1A6FEE)
+val primaryVariantColor = Color(0xFF57A9FF)
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
