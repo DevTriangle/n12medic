@@ -1,5 +1,6 @@
 package com.triangle.n12medic.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -16,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +32,8 @@ class CreatePasswordActivity : ComponentActivity() {
     // Класс для создания пароля приложения
     // Дата создания: 28.02.2023 13:09
     // Автор: Triangle
+
+    private var code = ""
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +51,11 @@ class CreatePasswordActivity : ComponentActivity() {
     
     @Composable
     fun CreatePasswordContent() {
+        val mContext = LocalContext.current
+
         var passwordCode by rememberSaveable { mutableStateOf("") }
+        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+
         Scaffold(
             topBar = {
                 Row(
@@ -106,8 +114,19 @@ class CreatePasswordActivity : ComponentActivity() {
                         count = 4,
                         currentCount = passwordCode.length
                     )
-                    PasswordKeyboard(onCodeChange = {
-                        passwordCode = it
+                    PasswordKeyboard(onCodeChange = { password ->
+                        passwordCode = password
+
+                        Log.d("PASSWORD", password)
+                        if (passwordCode.length == 4) {
+                            with(sharedPreferences.edit()) {
+                                putString("passwordCode", passwordCode)
+                                apply()
+                            }
+
+                            val intent = Intent(mContext, CreateCardActivity::class.java)
+                            startActivity(intent)
+                        }
                     })
                 }
             }
@@ -118,8 +137,6 @@ class CreatePasswordActivity : ComponentActivity() {
     fun PasswordKeyboard(
         onCodeChange: (String) -> Unit
     ) {
-        var code: String = ""
-
         LazyVerticalGrid(
             modifier = Modifier
                 .width(312.dp),

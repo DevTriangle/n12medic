@@ -15,6 +15,9 @@ class AuthViewModel: ViewModel() {
     val authErrorMessage = MutableLiveData<String>()
 
     fun sendCode(email: String) {
+        errorMessage.value = null
+        message.value = null
+
         val apiService = ApiService.getInstance()
 
         viewModelScope.launch {
@@ -38,6 +41,9 @@ class AuthViewModel: ViewModel() {
     }
 
     fun authUser(email: String, code: String) {
+        authToken.value = null
+        authErrorMessage.value = null
+
         val apiService = ApiService.getInstance()
 
         viewModelScope.launch {

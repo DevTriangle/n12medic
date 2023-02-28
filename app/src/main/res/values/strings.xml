@@ -4,4 +4,5 @@
     <string name="title_activity_auth">AuthActivity</string>
     <string name="title_activity_email_code">EmailCodeActivity</string>
     <string name="title_activity_create_password">CreatePasswordActivity</string>
+    <string name="title_activity_create_card">CreateCardActivity</string>
 </resources>

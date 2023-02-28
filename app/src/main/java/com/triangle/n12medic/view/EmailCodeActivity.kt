@@ -57,6 +57,7 @@ class EmailCodeActivity : ComponentActivity() {
     fun EmailCodeContent() {
         val mContext = LocalContext.current
         val viewModel = ViewModelProvider(this)[AuthViewModel::class.java]
+        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
 
         val email = intent.getStringExtra("email")
 
@@ -73,6 +74,11 @@ class EmailCodeActivity : ComponentActivity() {
             if (token != null) {
                 val intent = Intent(mContext, CreatePasswordActivity::class.java)
                 startActivity(intent)
+
+                with(sharedPreferences.edit()) {
+                    putString("token", token)
+                    apply()
+                }
             }
         }
 

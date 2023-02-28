@@ -13,14 +13,24 @@
         android:roundIcon="@mipmap/ic_app_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.N12Medic"
-        tools:targetApi="31"
         android:usesCleartextTraffic="true"
-        >
+        tools:targetApi="31">
+        <activity
+            android:name=".view.CreateCardActivity"
+            android:exported="false"
+            android:label="@string/title_activity_create_card"
+            android:theme="@style/Theme.N12Medic"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".view.CreatePasswordActivity"
             android:exported="false"
             android:label="@string/title_activity_create_password"
-            android:theme="@style/Theme.N12Medic">
+            android:theme="@style/Theme.N12Medic"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

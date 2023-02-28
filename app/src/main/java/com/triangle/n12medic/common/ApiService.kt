@@ -5,6 +5,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.HeaderMap
@@ -24,6 +25,12 @@ interface ApiService {
     )
     @POST("signin")
     suspend fun signIn(@HeaderMap headers: Map<String, String>) : Response<JsonObject>
+
+    @Headers(
+        "accept: application/json",
+    )
+    @POST("createProfile")
+    suspend fun createProfile(@Header("Authorization") auth: String, @Body profileInfo: Map<String, String>) : Response<JsonObject>
 
     companion object {
         var apiService: ApiService? = null
