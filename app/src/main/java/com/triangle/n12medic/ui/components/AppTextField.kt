@@ -68,7 +68,7 @@ fun AppTextField(
             value = value,
             modifier = modifier
                 .background(colors.backgroundColor(enabled).value, shape)
-                .border(1.dp, Color(0xFFEBEBEB), shape),
+                .border(1.dp, if (value != "") Color(0xFFB8C1CC) else Color(0xFFEBEBEB), shape),
             onValueChange = onValueChange,
             enabled = enabled,
             readOnly = readOnly,

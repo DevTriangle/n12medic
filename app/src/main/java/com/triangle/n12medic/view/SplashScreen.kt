@@ -37,6 +37,8 @@ class SplashScreen : ComponentActivity() {
 
             val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
             val isFirstLaunch = sharedPreferences.getBoolean("isFirstLaunch", true)
+            val token = sharedPreferences.getString("token", "")
+            val passwordSkipped = sharedPreferences.getBoolean("passwordSkipped", true)
 
             N12MedicTheme {
                 Surface(
@@ -51,8 +53,19 @@ class SplashScreen : ComponentActivity() {
                             val intent = Intent(mContext, OnboardActivity::class.java)
                             startActivity(intent)
                         } else {
-                            val intent = Intent(mContext, AuthActivity::class.java)
-                            startActivity(intent)
+                            if (token != null) {
+                                if (passwordSkipped) {
+                                    val intent = Intent(mContext, CreatePasswordActivity::class.java)
+                                    startActivity(intent)
+                                } else {
+                                    val intent = Intent(mContext, CreateCardActivity::class.java)
+                                    startActivity(intent)
+                                }
+
+                            } else {
+                                val intent = Intent(mContext, AuthActivity::class.java)
+                                startActivity(intent)
+                            }
                         }
                     }
                 }

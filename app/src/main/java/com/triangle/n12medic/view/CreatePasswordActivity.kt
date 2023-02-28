@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ShareCompat.IntentBuilder
 import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.ui.components.PasswordDotsIndicator
 import com.triangle.n12medic.ui.components.PasswordKeyButton
@@ -70,7 +71,14 @@ class CreatePasswordActivity : ComponentActivity() {
                             contentColor = MaterialTheme.colors.primary,
                             backgroundColor = Color.Transparent
                         ),
-                        onClick = {  },
+                        onClick = {
+                            with(sharedPreferences.edit()) {
+                                putBoolean("passwordSkipped", true)
+                                apply()
+                            }
+                            val intent = Intent(mContext, CreateCardActivity::class.java)
+                            startActivity(intent)
+                        },
                         textStyle = LocalTextStyle.current.copy(
                             fontSize = 17.sp,
                             color = MaterialTheme.colors.primary
@@ -121,6 +129,7 @@ class CreatePasswordActivity : ComponentActivity() {
                         if (passwordCode.length == 4) {
                             with(sharedPreferences.edit()) {
                                 putString("passwordCode", passwordCode)
+                                putBoolean("passwordSkipped", false)
                                 apply()
                             }
 
