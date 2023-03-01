@@ -10,12 +10,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,12 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.R
 import com.triangle.n12medic.model.News
-import com.triangle.n12medic.ui.components.CatalogCard
-import com.triangle.n12medic.ui.components.CategoryChip
-import com.triangle.n12medic.ui.components.NewsComponent
+import com.triangle.n12medic.ui.components.*
 import com.triangle.n12medic.viewmodel.HomeViewModel
 import kotlinx.coroutines.flow.collect
 
@@ -41,6 +40,8 @@ fun AnalyzesScreen(
 ) { // Главный экран
     var searchValue by rememberSaveable { mutableStateOf("") }
     var isVisible by rememberSaveable { mutableStateOf(true) }
+
+    var isErrorVisible by rememberSaveable { mutableStateOf(false) }
 
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
     var swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
@@ -99,7 +100,6 @@ fun AnalyzesScreen(
                 }
             }
         }
-
     }
 }
 
@@ -107,6 +107,16 @@ fun AnalyzesScreen(
 private fun NewsContainer(
     viewModel: HomeViewModel
 ) {
+    var isErrorVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val errorMessage by viewModel.newsErrorMessage.observeAsState()
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            isErrorVisible = true
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.loadNews()
     }
@@ -132,6 +142,29 @@ private fun NewsContainer(
             }
         }
     }
+
+    if (isErrorVisible) {
+        AlertDialog(
+            onDismissRequest = { isErrorVisible = false },
+            title = {
+                Text(
+                    text = "Ошибка",
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                errorMessage?.let { Text(text = it) }
+            },
+            buttons = {
+                AppTextButton(
+                    label = "Ок",
+                    onClick = {
+                        isErrorVisible = false
+                    }
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -142,6 +175,16 @@ private fun AnalyzesContainer(
     var selectedCategory by rememberSaveable { mutableStateOf("Популярные") }
     val scrollState = rememberLazyListState()
 
+    var isErrorVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val errorMessage by viewModel.analyzesErrorMessage.observeAsState()
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            isErrorVisible = true
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.loadCatalog()
     }
@@ -149,7 +192,7 @@ private fun AnalyzesContainer(
     LaunchedEffect(scrollState) {
         snapshotFlow { scrollState.firstVisibleItemScrollOffset }.collect() {
             Log.d(TAG, "AnalyzesContainer: $it")
-            if (it == 0) {
+            if (it < 100) {
                 onScrollChange(true)
             } else {
                 onScrollChange(false)
@@ -190,5 +233,28 @@ private fun AnalyzesContainer(
                 }
             }
         }
+    }
+
+    if (isErrorVisible) {
+        AlertDialog(
+            onDismissRequest = { isErrorVisible = false },
+            title = {
+                Text(
+                    text = "Ошибка",
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                errorMessage?.let { Text(text = it) }
+            },
+            buttons = {
+                AppTextButton(
+                    label = "Ок",
+                    onClick = {
+                        isErrorVisible = false
+                    }
+                )
+            }
+        )
     }
 }

@@ -65,7 +65,7 @@ fun CatalogCard(
                         color = Color(0xFF939396)
                     )
                     Text(
-                        text = analysis.price,
+                        text = "${analysis.price} ₽",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold
                     )

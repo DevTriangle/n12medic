@@ -62,7 +62,7 @@ fun NewsComponent(
                         color = Color.White
                     )
                     Text(
-                        text = news.price,
+                        text = "${news.price} ₽",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White

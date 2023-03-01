@@ -1,5 +1,6 @@
 package com.triangle.n12medic.view
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -53,17 +54,13 @@ class HomeActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun MainScreenContent() {
         val navHostController = rememberNavController()
         val navBackStackEntry = navHostController.currentBackStackEntryAsState()
 
         Scaffold(
-            content = {
-                Box(modifier = Modifier.padding(it)) {
-                    Navigation(navHostController = navHostController)
-                }
-            },
             bottomBar = {
                 BottomNavigationBar {
                     BottomNavigationItem(
@@ -155,6 +152,11 @@ class HomeActivity : ComponentActivity() {
                         unselectedContentColor = iconColor
                     )
                 }
+            },
+            content = {
+                //Box(modifier = Modifier.padding(it)) {
+                    Navigation(navHostController = navHostController)
+                //}
             },
         )
     }

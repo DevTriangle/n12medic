@@ -1,5 +1,6 @@
 package com.triangle.n12medic.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.lifecycle.ViewModelProvider
 import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.ui.components.AppTextField
@@ -49,6 +51,8 @@ class CreateCardActivity : ComponentActivity() {
 
     @Composable
     fun CreateCardContent() {
+        val mContext = LocalContext.current
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -75,7 +79,10 @@ class CreateCardActivity : ComponentActivity() {
                         contentColor = MaterialTheme.colors.primary,
                         backgroundColor = Color.Transparent
                     ),
-                    onClick = {  },
+                    onClick = {
+                        val intent = Intent(mContext,HomeActivity::class.java)
+                        startActivity(intent)
+                    },
                     textStyle = LocalTextStyle.current.copy(
                         fontSize = 17.sp,
                         color = MaterialTheme.colors.primary
@@ -122,7 +129,8 @@ class CreateCardActivity : ComponentActivity() {
         val isSuccess by viewModel.isSuccess.observeAsState()
         LaunchedEffect(isSuccess) {
             if (isSuccess != null) {
-                Toast.makeText(mContext, isSuccess.toString() + " " + viewModel.errorMessage.value.toString(), Toast.LENGTH_LONG).show()
+                val intent = Intent(mContext,HomeActivity::class.java)
+                startActivity(intent)
             }
         }
 

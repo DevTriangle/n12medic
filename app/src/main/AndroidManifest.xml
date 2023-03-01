@@ -59,7 +59,7 @@
             android:exported="false"
             android:label="@string/title_activity_auth"
             android:theme="@style/Theme.N12Medic"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
