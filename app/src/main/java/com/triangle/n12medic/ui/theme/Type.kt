@@ -15,7 +15,8 @@ val SFProFamily = FontFamily(
     Font(R.font.sf_regular, FontWeight.Normal),
     Font(R.font.sf_medium, FontWeight.Medium),
     Font(R.font.sf_semibold, FontWeight.SemiBold),
-    Font(R.font.sf_bold, FontWeight.Bold)
+    Font(R.font.sf_bold, FontWeight.Bold),
+    Font(R.font.sf_black, FontWeight.Black),
 )
 
 val Typography = Typography(

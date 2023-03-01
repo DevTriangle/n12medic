@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,6 +30,7 @@ import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 import com.triangle.n12medic.R
 import com.triangle.n12medic.ui.components.AppOutlinedButton
+import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.viewmodel.AuthViewModel
 
 class AuthActivity : ComponentActivity() {
@@ -57,6 +59,8 @@ class AuthActivity : ComponentActivity() {
         var email by rememberSaveable { mutableStateOf("") }
         var emailError by rememberSaveable { mutableStateOf("") }
 
+        var isErrorVisible by rememberSaveable { mutableStateOf(false) }
+
         val message by viewModel.message.observeAsState()
         LaunchedEffect(message) {
             if (message == "Успешно код отправлен") {
@@ -68,7 +72,7 @@ class AuthActivity : ComponentActivity() {
         val errorMessage by viewModel.errorMessage.observeAsState()
         LaunchedEffect(errorMessage) {
             if (errorMessage != null) {
-
+                isErrorVisible = true
             }
         }
 
@@ -132,6 +136,28 @@ class AuthActivity : ComponentActivity() {
                     }
                 )
             }
+        }
+        if (isErrorVisible) {
+            AlertDialog(
+                onDismissRequest = { isErrorVisible = false },
+                title = {
+                    Text(
+                        text = "Ошибка",
+                        fontSize = 18.sp
+                    )
+                },
+                text = {
+                    errorMessage?.let { Text(text = it) }
+                },
+                buttons = {
+                    AppTextButton(
+                        label = "Ок",
+                        onClick = {
+                            isErrorVisible = false
+                        }
+                    )
+                }
+            )
         }
     }
 

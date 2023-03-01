@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.triangle.n12medic.ui.components.AppIconButton
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 import com.triangle.n12medic.R
+import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
@@ -69,6 +70,8 @@ class EmailCodeActivity : ComponentActivity() {
         var code3 by rememberSaveable { mutableStateOf("") }
         var code4 by rememberSaveable { mutableStateOf("") }
 
+        var isErrorVisible by rememberSaveable { mutableStateOf(false) }
+
         val token by viewModel.authToken.observeAsState()
         LaunchedEffect(token) {
             if (token != null) {
@@ -85,7 +88,7 @@ class EmailCodeActivity : ComponentActivity() {
         val errorMessage by viewModel.authErrorMessage.observeAsState()
         LaunchedEffect(errorMessage) {
             if (errorMessage != null) {
-                // todo Error
+                isErrorVisible = true
             }
         }
 
@@ -249,6 +252,29 @@ class EmailCodeActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+
+        if (isErrorVisible) {
+            AlertDialog(
+                onDismissRequest = { isErrorVisible = false },
+                title = {
+                    Text(
+                        text = "Ошибка",
+                        fontSize = 18.sp
+                    )
+                },
+                text = {
+                    errorMessage?.let { Text(text = it) }
+                },
+                buttons = {
+                    AppTextButton(
+                        label = "Ок",
+                        onClick = {
+                            isErrorVisible = false
+                        }
+                    )
+                }
+            )
         }
     }
 }

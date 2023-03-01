@@ -1,6 +1,8 @@
 package com.triangle.n12medic.common
 
 import com.google.gson.JsonObject
+import com.triangle.n12medic.model.News
+import org.json.JSONArray
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -18,19 +20,31 @@ interface ApiService {
         "accept: application/json",
     )
     @POST("sendCode")
-    suspend fun sendEmailCode(@Header("email") email: String) : Response<JsonObject>
+    suspend fun sendEmailCode(@Header("email") email: String) : Response<JsonObject> // Отправка кода авторизации на почту
 
     @Headers(
         "accept: application/json",
     )
     @POST("signin")
-    suspend fun signIn(@HeaderMap headers: Map<String, String>) : Response<JsonObject>
+    suspend fun signIn(@HeaderMap headers: Map<String, String>) : Response<JsonObject> // Авторизация пользователя
 
     @Headers(
         "accept: application/json",
     )
     @POST("createProfile")
-    suspend fun createProfile(@Header("Authorization") auth: String, @Body profileInfo: Map<String, String>) : Response<JsonObject>
+    suspend fun createProfile(@Header("Authorization") auth: String, @Body profileInfo: Map<String, String>) : Response<JsonObject> // Создание карты пользователя
+
+    @Headers(
+        "accept: application/json",
+    )
+    @GET("news")
+    suspend fun loadNews() : List<News>
+
+    @Headers(
+        "accept: application/json",
+    )
+    @GET("news")
+    suspend fun loadCatalog() : List<News>
 
     companion object {
         var apiService: ApiService? = null
