@@ -154,9 +154,10 @@ class HomeActivity : ComponentActivity() {
                 }
             },
             content = {
-                //Box(modifier = Modifier.padding(it)) {
+                Box(modifier = Modifier.padding(it)) {
                     Navigation(navHostController = navHostController)
-                //}
+                }
+
             },
         )
     }

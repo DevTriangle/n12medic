@@ -85,12 +85,12 @@ fun AppTextField(
                     value = value,
                     visualTransformation = visualTransformation,
                     innerTextField = innerTextField,
-                    placeholder = placeholder,
-                    label = {
+                    placeholder = {
                         if (label != null) {
                             Text(text = label)
                         }
                     },
+                    label = placeholder,
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon,
                     singleLine = singleLine,

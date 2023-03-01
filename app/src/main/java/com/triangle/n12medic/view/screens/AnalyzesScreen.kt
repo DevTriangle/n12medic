@@ -49,7 +49,7 @@ fun AnalyzesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp)
+            .padding(horizontal = 20.dp)
     ) {
         AppTextField(
             modifier = Modifier
@@ -192,7 +192,7 @@ private fun AnalyzesContainer(
     LaunchedEffect(scrollState) {
         snapshotFlow { scrollState.firstVisibleItemScrollOffset }.collect() {
             Log.d(TAG, "AnalyzesContainer: $it")
-            if (it < 100) {
+            if (it == 0) {
                 onScrollChange(true)
             } else {
                 onScrollChange(false)
