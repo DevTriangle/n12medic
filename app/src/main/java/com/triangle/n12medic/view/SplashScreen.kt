@@ -58,7 +58,7 @@ class SplashScreen : ComponentActivity() {
                                     val intent = Intent(mContext, CreatePasswordActivity::class.java)
                                     startActivity(intent)
                                 } else {
-                                    val intent = Intent(mContext, CreateCardActivity::class.java)
+                                    val intent = Intent(mContext, CreatePasswordActivity::class.java)
                                     startActivity(intent)
                                 }
 

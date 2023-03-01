@@ -18,12 +18,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ShareCompat.IntentBuilder
+import com.triangle.n12medic.R
 import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.ui.components.PasswordDotsIndicator
 import com.triangle.n12medic.ui.components.PasswordKeyButton
@@ -177,7 +179,17 @@ class CreatePasswordActivity : ComponentActivity() {
                     )
                 }
                 item() {
-
+                    IconButton(
+                        onClick = {
+                            if (code.length > 0) {
+                                code = code.substring(0, code.length - 1)
+                                onCodeChange(code)
+                            }
+                        },
+                        content = {
+                            Icon(painter = painterResource(id = R.drawable.ic_del), contentDescription = "")
+                        }
+                    )
                 }
             }
         )
