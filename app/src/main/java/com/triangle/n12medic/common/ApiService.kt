@@ -1,6 +1,7 @@
 package com.triangle.n12medic.common
 
 import com.google.gson.JsonObject
+import com.triangle.n12medic.model.Analysis
 import com.triangle.n12medic.model.News
 import org.json.JSONArray
 import retrofit2.Response
@@ -43,8 +44,8 @@ interface ApiService {
     @Headers(
         "accept: application/json",
     )
-    @GET("news")
-    suspend fun loadCatalog() : List<News>
+    @GET("catalog")
+    suspend fun loadCatalog() : List<Analysis>
 
     companion object {
         var apiService: ApiService? = null

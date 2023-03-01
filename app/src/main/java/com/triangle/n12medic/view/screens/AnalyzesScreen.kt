@@ -1,31 +1,49 @@
 package com.triangle.n12medic.view.screens
 
+import android.content.ContentValues.TAG
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.R
 import com.triangle.n12medic.model.News
+import com.triangle.n12medic.ui.components.CatalogCard
 import com.triangle.n12medic.ui.components.CategoryChip
 import com.triangle.n12medic.ui.components.NewsComponent
 import com.triangle.n12medic.viewmodel.HomeViewModel
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun AnalyzesScreen(
     viewModel: HomeViewModel
-) {
+) { // Главный экран
     var searchValue by rememberSaveable { mutableStateOf("") }
+    var isVisible by rememberSaveable { mutableStateOf(true) }
+
+    var isRefreshing by rememberSaveable { mutableStateOf(false) }
+    var swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
     Column(
         modifier = Modifier
@@ -49,10 +67,39 @@ fun AnalyzesScreen(
                 )
             }
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        NewsContainer(viewModel)
-        Spacer(modifier = Modifier.height(32.dp))
-        AnalyzesContainer(viewModel)
+        Spacer(modifier = Modifier.height(16.dp))
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = {
+                viewModel.loadCatalog()
+                viewModel.loadNews()
+            }
+        ) {
+            Column {
+                AnimatedVisibility(visible = isVisible) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        NewsContainer(viewModel)
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Text(
+                            text = "Каталог анализов",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF939396)
+                        )
+                    }
+                }
+                AnalyzesContainer(
+                    viewModel
+                ) {
+                    isVisible = it
+                }
+            }
+        }
+
     }
 }
 
@@ -89,20 +136,31 @@ private fun NewsContainer(
 
 @Composable
 private fun AnalyzesContainer(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onScrollChange: (Boolean) -> Unit
 ) {
     var selectedCategory by rememberSaveable { mutableStateOf("Популярные") }
+    val scrollState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadCatalog()
+    }
+
+    LaunchedEffect(scrollState) {
+        snapshotFlow { scrollState.firstVisibleItemScrollOffset }.collect() {
+            Log.d(TAG, "AnalyzesContainer: $it")
+            if (it == 0) {
+                onScrollChange(true)
+            } else {
+                onScrollChange(false)
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Text(
-            text = "Каталог анализов",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF939396)
-        )
         Spacer(modifier = Modifier.height(16.dp))
         LazyRow() {
             items(
@@ -117,8 +175,20 @@ private fun AnalyzesContainer(
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
-        LazyColumn() {
-
+        LazyColumn(
+            state = scrollState
+        ) {
+            items(
+                items = viewModel.analyzes
+            ) { analysis ->
+                if (analysis.category.lowercase() == selectedCategory.lowercase()) {
+                    CatalogCard(
+                        analysis = analysis,
+                        onClick = {}
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
     }
 }

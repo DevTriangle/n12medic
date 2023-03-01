@@ -29,6 +29,9 @@ import com.triangle.n12medic.ui.theme.N12MedicTheme
 import com.triangle.n12medic.R
 import com.triangle.n12medic.ui.theme.iconColor
 import com.triangle.n12medic.view.screens.AnalyzesScreen
+import com.triangle.n12medic.view.screens.ProfileScreen
+import com.triangle.n12medic.view.screens.ResultsScreen
+import com.triangle.n12medic.view.screens.SupportScreen
 import com.triangle.n12medic.viewmodel.HomeViewModel
 
 class HomeActivity : ComponentActivity() {
@@ -168,10 +171,13 @@ class HomeActivity : ComponentActivity() {
                 AnalyzesScreen(viewModel)
             }
             composable("results") {
+                ResultsScreen()
             }
             composable("support") {
+                SupportScreen()
             }
             composable("profile") {
+                ProfileScreen()
             }
         }
     }

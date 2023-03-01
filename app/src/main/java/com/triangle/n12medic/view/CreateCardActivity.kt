@@ -29,7 +29,7 @@ import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.viewmodel.CardManageViewModel
 
 class CreateCardActivity : ComponentActivity() {
-    //Создание карточки пациента
+    // Создание карточки пациента
     // Дата создания: 28.02.2023 15:00
     // Автор: Triangle
 
