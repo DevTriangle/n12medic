@@ -1,5 +1,6 @@
 package com.triangle.n12medic.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -25,7 +26,8 @@ import com.triangle.n12medic.model.Analysis
 fun CatalogCard(
     modifier: Modifier = Modifier,
     analysis: Analysis,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isInCart: Boolean
 ) {
     Box(
         modifier = modifier
@@ -71,14 +73,19 @@ fun CatalogCard(
                     )
                 }
                 AppButton(
-                    label = "Добавить",
+                    label = if (isInCart) "Убрать" else "Добавить",
                     onClick = onClick,
                     textStyle = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-                    elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp)
+                    elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (isInCart) Color.White else MaterialTheme.colors.primary,
+                        contentColor = if (isInCart) Color.Black else Color.White
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colors.primary)
                 )
             }
         }

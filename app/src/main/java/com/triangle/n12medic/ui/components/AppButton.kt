@@ -1,7 +1,10 @@
 package com.triangle.n12medic.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +42,8 @@ fun AppButton(
     ),
     contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp, vertical = 16.dp),
     onClick: () -> Unit,
-    elevation: ButtonElevation = ButtonDefaults.elevation()
+    elevation: ButtonElevation = ButtonDefaults.elevation(),
+    border: BorderStroke = BorderStroke(0.dp, Color.Transparent)
 ) {
     Button(
         modifier = modifier,
@@ -47,7 +51,8 @@ fun AppButton(
         onClick = onClick,
         colors = colors,
         contentPadding = contentPadding,
-        elevation = elevation
+        elevation = elevation,
+        border = border
     ) {
         Text(
             text = label,
@@ -130,22 +135,25 @@ fun AppIconButton(
     onClick: () -> Unit,
     elevation: ButtonElevation = ButtonDefaults.elevation(
         0.dp, 0.dp, 0.dp
-    )
+    ),
+    shape: Shape = MaterialTheme.shapes.medium
 ) {
-    Button(
+    Box(
         modifier = modifier
-            .size(size),
-        enabled = enabled,
-        onClick = onClick,
-        colors = colors,
-        contentPadding = contentPadding,
-        elevation = elevation
+            .size(size)
+            .clip(shape)
+            .background(colors.backgroundColor(enabled = true).value, shape)
+            .clickable(
+                onClick = onClick
+            )
     ) {
         Icon(
             modifier = Modifier
-                .size(size - 5.dp),
+                .padding(contentPadding)
+                .size(size - 7.dp),
             painter = painter,
             contentDescription = "",
+            tint = Color(0xFF7E7E9A)
         )
     }
 }
