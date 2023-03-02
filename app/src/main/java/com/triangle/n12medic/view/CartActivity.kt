@@ -1,7 +1,9 @@
 package com.triangle.n12medic.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,6 +42,10 @@ class CartActivity : ComponentActivity() {
                 ) {
                     CartContent()
                 }
+            }
+            BackHandler() {
+                val intent = Intent(this, HomeActivity::class.java)
+                startActivity(intent)
             }
         }
     }
@@ -103,7 +109,7 @@ class CartActivity : ComponentActivity() {
                                 .fillMaxWidth()
                         ) {
                             items(
-                                items = cart
+                                items = cart.distinct()
                             ) { item ->
                                 CartComponent(
                                     onPlusClick = {
@@ -145,7 +151,7 @@ class CartActivity : ComponentActivity() {
                                 fontWeight = FontWeight.SemiBold
                             )
                             var sum = 0
-                            for (item in cart) {
+                            for (item in cart.distinct()) {
                                 sum += item.price.toInt() * item.count
                             }
                             Text(

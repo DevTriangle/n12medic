@@ -1,16 +1,17 @@
 package com.triangle.n12medic.view.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 import com.triangle.n12medic.R
@@ -34,7 +37,9 @@ import com.triangle.n12medic.viewmodel.ProfileViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    resultLauncher: ActivityResultLauncher<Intent>,
+    navController: NavHostController
 ) { // Экран профиля пользователя
     val mContext = LocalContext.current
     val sharedPreferences = mContext.getSharedPreferences("shared", ComponentActivity.MODE_PRIVATE)
@@ -48,10 +53,28 @@ fun ProfileScreen(
     var genderExpanded by rememberSaveable { mutableStateOf(false) }
     val token = sharedPreferences.getString("token", "")
 
+    var imageUpdated by remember { mutableStateOf(false) }
+    val image by viewModel.selectedImage.observeAsState()
+    LaunchedEffect(image) {
+        if (image != null) {
+            imageUpdated = true
+        }
+    }
+
+    val isSuccess by viewModel.isSuccess.observeAsState()
+
+    val isSuccessUploadMessage by viewModel.isSuccessUploadImage.observeAsState()
+    LaunchedEffect(isSuccessUploadMessage) {
+        if (isSuccessUploadMessage == true && isSuccess == true) {
+            navController.navigate("analyzes")
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -68,8 +91,17 @@ fun ProfileScreen(
                 .height(120.dp)
                 .width(140.dp)
                 .clip(CircleShape)
-                .background(Color(0x80D9D9D9)),
-            imageModel = "",
+                .background(Color(0x80D9D9D9))
+                .clickable(
+                    onClick = {
+                        val intent = Intent()
+                        intent.type = "image/*"
+                        intent.action = Intent.ACTION_GET_CONTENT
+
+                        resultLauncher.launch(intent)
+                    }
+                ),
+            imageModel = image,
             imageOptions = ImageOptions(
                 contentScale = ContentScale.Crop
             ),
@@ -204,6 +236,14 @@ fun ProfileScreen(
                         pol = gender,
                         token = token
                     )
+
+                    if (imageUpdated) {
+                        viewModel.uploadImage(
+                            image!!,
+                            token,
+                            mContext.contentResolver
+                        )
+                    }
                 }
             }
         )

@@ -1,10 +1,13 @@
 package com.triangle.n12medic.view
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -175,7 +178,19 @@ class HomeActivity : ComponentActivity() {
                 SupportScreen()
             }
             composable("profile") {
-                ProfileScreen(profileViewModel)
+                ProfileScreen(profileViewModel, resultLauncher, navHostController)
+            }
+        }
+    }
+
+    private var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+
+            if (data?.data != null) {
+                profileViewModel.setImage(data.data.toString())
             }
         }
     }

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,8 +19,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +47,7 @@ fun AnalyzesScreen(
     viewModel: HomeViewModel
 ) {
     val mContext = LocalContext.current
+    val focus = LocalFocusManager.current
     val sharedPreferences = mContext.getSharedPreferences("shared", Context.MODE_PRIVATE)
 
     var searchValue by rememberSaveable { mutableStateOf("") }
@@ -64,6 +71,8 @@ fun AnalyzesScreen(
     )
 
     var selectedCategory by rememberSaveable { mutableStateOf("Популярные") }
+
+    var isSearchVisible by rememberSaveable { mutableStateOf(false) }
 
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
     var refreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
@@ -244,126 +253,194 @@ fun AnalyzesScreen(
             }
         ) {
             Column(
-                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 100.dp)
+                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp)
             ) {
-                AppTextField(
-                    value = searchValue,
-                    onValueChange = { searchValue = it },
-                    contentPadding = PaddingValues(14.dp),
-                    placeholder = {
-                        Text(
-                            "Искать анализы",
-                            fontSize = 16.sp,
-                            color = Color(0xFF939396)
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_search),
-                            contentDescription = "",
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(30.dp))
-                AnimatedVisibility(visible = isNewsVisible) {
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        Text(
-                            "Акции и новости",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.W600,
-                            color = Color(0xFF939396)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        LazyRow {
-                            items(viewModel.news) { item ->
-                                NewsComponent(news = item)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(30.dp))
-                        Text(
-                            "Каталог анализов",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.W600,
-                            color = Color(0xFF939396)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                    for (category in analyzesCategories) {
-                        CategoryChip(
-                            selected = selectedCategory == category,
-                            label = category,
-                            onClick = { selectedCategory = category }
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                    }
-                }
-                LazyColumn(state = lazyListState) {
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
-                    items(viewModel.analyzes.filter { it.category.lowercase() == selectedCategory.lowercase() }.distinct()) { item ->
-                        var isElementInCart = false
-
-                        for (i in cart) {
-                            if (i.id == item.id) {
-                                isElementInCart = true
-                                break
-                            }
-                        }
-                        CatalogCard(
-                            name = item.name,
-                            price = item.price,
-                            timeResult = item.timeResult,
-                            isInCart = isElementInCart,
-                            onClick = {
-                                id = item.id
-                                title = item.name
-                                descriptionText = item.description
-                                preparation = item.preparation
-                                timeResult = item.timeResult
-                                bio = item.bio
-                                price = item.price
-
-                                scope.launch {
-                                    modalBottomSheetState.show()
+                Row() {
+                    AppTextField(
+                        modifier = Modifier
+                            .fillMaxWidth(if (isSearchVisible) 0.7f else 1f),
+                        value = searchValue,
+                        onValueChange = { searchValue = it },
+                        contentPadding = PaddingValues(14.dp),
+                        placeholder = {
+                            Text(
+                                "Искать анализы",
+                                fontSize = 16.sp,
+                                color = Color(0xFF939396)
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_search),
+                                contentDescription = "",
+                            )
+                        },
+                        trailingIcon = {
+                            AnimatedVisibility(visible = isSearchVisible) {
+                                IconButton(
+                                    onClick = { searchValue = "" }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_close),
+                                        contentDescription = "",
+                                    )
                                 }
                             }
-                        )
+                        },
+                        interactionSource = remember {
+                            MutableInteractionSource()
+                        }.also { interactionSource ->
+                            LaunchedEffect(Unit) {
+                                interactionSource.interactions.collect() {
+                                    if (it is PressInteraction.Release) {
+                                        isSearchVisible = true
+                                    }
+                                }
+                            }
+                        }
+                    )
+                    AnimatedVisibility(
+                        modifier = Modifier
+                            .weight(1f),
+                        visible = isSearchVisible
+                    ) {
+                        Row() {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            AppTextButton(
+                                label = "Отменить",
+                                onClick = {
+                                    isSearchVisible = false
+                                    searchValue = ""
+                                    focus.clearFocus()
+                                }
+                            )
+                        }
                     }
                 }
-            }
+                Spacer(modifier = Modifier.height(30.dp))
+                AnimatedVisibility(visible = !isSearchVisible) {
+                    Column() {
+                        AnimatedVisibility(visible = isNewsVisible) {
+                            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                                Text(
+                                    "Акции и новости",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.W600,
+                                    color = Color(0xFF939396)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                LazyRow {
+                                    items(viewModel.news) { item ->
+                                        NewsComponent(news = item)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(30.dp))
+                                Text(
+                                    "Каталог анализов",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.W600,
+                                    color = Color(0xFF939396)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                            for (category in analyzesCategories) {
+                                CategoryChip(
+                                    selected = selectedCategory == category,
+                                    label = category,
+                                    onClick = { selectedCategory = category }
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
+                        }
+                        LazyColumn(state = lazyListState) {
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
+                            items(viewModel.analyzes.filter { it.category.lowercase() == selectedCategory.lowercase() }.distinct()) { item ->
+                                var isElementInCart = false
 
-            if (isAlertDialogVisible) {
-                AlertDialog(
-                    onDismissRequest = {
-                        isAlertDialogVisible = false
-                    },
-                    title = {
-                        Text(
-                            "Ошибка",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W700
-                        )
-                    },
-                    text = {
-                        Text(
-                            viewModel.message.value.toString(),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.W700
-                        )
-                    },
-                    buttons = {
-                        AppTextButton(
-                            label = "OK",
-                            onClick = { isAlertDialogVisible = false }
-                        )
+                                for (i in cart) {
+                                    if (i.id == item.id) {
+                                        isElementInCart = true
+                                        break
+                                    }
+                                }
+                                CatalogCard(
+                                    name = item.name,
+                                    price = item.price,
+                                    timeResult = item.timeResult,
+                                    isInCart = isElementInCart,
+                                    onClick = {
+                                        id = item.id
+                                        title = item.name
+                                        descriptionText = item.description
+                                        preparation = item.preparation
+                                        timeResult = item.timeResult
+                                        bio = item.bio
+                                        price = item.price
+
+                                        scope.launch {
+                                            modalBottomSheetState.show()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(100.dp))
                     }
-                )
+                }
+                AnimatedVisibility(visible = isSearchVisible) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                    ) {
+                        LazyColumn() {
+                            items(
+                                items = viewModel.analyzes.filter { it.name.contains(searchValue) && searchValue != "" }
+                            ) { item ->
+                                AnalysisSearchCard(
+                                    name = item.name,
+                                    searchValue = searchValue,
+                                    price = item.price,
+                                    timeResult = item.timeResult
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (isAlertDialogVisible) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            isAlertDialogVisible = false
+                        },
+                        title = {
+                            Text(
+                                "Ошибка",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.W700
+                            )
+                        },
+                        text = {
+                            Text(
+                                viewModel.message.value.toString(),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.W700
+                            )
+                        },
+                        buttons = {
+                            AppTextButton(
+                                label = "OK",
+                                onClick = { isAlertDialogVisible = false }
+                            )
+                        }
+                    )
+                }
             }
         }
 
-        AnimatedVisibility(visible = cart.size > 0) {
+        AnimatedVisibility(visible = cart.size > 0  && !isSearchVisible) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier

@@ -3,17 +3,13 @@ package com.triangle.n12medic.common
 import com.google.gson.JsonObject
 import com.triangle.n12medic.model.Analysis
 import com.triangle.n12medic.model.News
+import okhttp3.MultipartBody
 import org.json.JSONArray
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.HeaderMap
-import retrofit2.http.Headers
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface ApiService {
 
@@ -38,8 +34,19 @@ interface ApiService {
     @Headers(
         "accept: application/json",
     )
-    @POST("createProfile")
+    @PUT("updateProfile")
     suspend fun saveProfile(@Header("Authorization") auth: String, @Body profileInfo: Map<String, String>) : Response<JsonObject> // Сохранение карты пользователя
+
+    @Multipart
+    @Headers(
+        "accept: */*",
+        "Content-Type: multipart/form-data",
+    )
+    @POST("avatar")
+    suspend fun uploadImage(
+        @Header("Authorization") auth: String,
+        @Part file: MultipartBody.Part
+    ) : Response<JsonObject> // Изменение изображения профиля
 
     @Headers(
         "accept: application/json",
