@@ -98,7 +98,8 @@ fun AnalyzesScreen(
     var bio by rememberSaveable { mutableStateOf("") }
     var price by rememberSaveable { mutableStateOf("") }
 
-    val cart = CartService().loadCart(sharedPreferences)
+    val cart: MutableList<CartItem> = remember { mutableStateListOf() }
+    cart.addAll(CartService().loadCart(sharedPreferences))
 
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -296,6 +297,7 @@ fun AnalyzesScreen(
                             label = category,
                             onClick = { selectedCategory = category }
                         )
+                        Spacer(modifier = Modifier.width(16.dp))
                     }
                 }
                 LazyColumn(state = lazyListState) {

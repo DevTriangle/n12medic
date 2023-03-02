@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -245,6 +246,50 @@ fun CartButton(
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold
             )
+        }
+    }
+}
+
+@Composable
+fun CartCountButtons(
+    onPlusClick: () -> Unit,
+    onMinusClick: () -> Unit,
+    count: Int
+) {
+    Card(
+        modifier = Modifier
+            .height(32.dp),
+        elevation = 0.dp,
+        backgroundColor = Color(0xFFF5F5F9)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onMinusClick,
+                enabled = count < 2
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_minus),
+                    contentDescription = "",
+                    tint = if (count < 2) Color(0xFFB8C1CC) else Color(0xFF939396)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .width(1.dp)
+                    .fillMaxHeight(0.75f)
+                    .background(Color(0xFFEBEBEB))
+            )
+            IconButton(
+                onClick = onPlusClick,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_plus),
+                    contentDescription = "",
+                    tint = Color(0xFF939396)
+                )
+            }
         }
     }
 }

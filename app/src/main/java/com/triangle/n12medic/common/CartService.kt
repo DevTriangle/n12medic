@@ -6,8 +6,8 @@ import com.google.gson.JsonArray
 import com.triangle.n12medic.model.CartItem
 
 class CartService() {
-    fun loadCart(sharedPreferences: SharedPreferences): ArrayList<CartItem> {
-        val cart = ArrayList<CartItem>()
+    fun loadCart(sharedPreferences: SharedPreferences): MutableList<CartItem> {
+        val cart = ArrayList<CartItem>().toMutableList()
         val cartJson = Gson().fromJson(sharedPreferences.getString("cart", "[]"), JsonArray::class.java)
 
         cartJson.forEach { jsonElement ->
@@ -24,7 +24,7 @@ class CartService() {
         return cart
     }
 
-    fun saveCart(sharedPreferences: SharedPreferences, cart: ArrayList<CartItem>) {
+    fun saveCart(sharedPreferences: SharedPreferences, cart: MutableList<CartItem>) {
         val json = Gson().toJson(cart)
 
         with(sharedPreferences.edit()) {

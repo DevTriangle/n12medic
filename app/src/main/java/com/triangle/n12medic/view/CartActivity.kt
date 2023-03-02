@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -14,7 +18,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.triangle.n12medic.R
+import com.triangle.n12medic.common.CartService
+import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.ui.components.AppIconButton
+import com.triangle.n12medic.ui.components.CartComponent
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 
 class CartActivity : ComponentActivity() {
@@ -38,6 +45,11 @@ class CartActivity : ComponentActivity() {
 
     @Composable
     fun CartContent() {
+        val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+
+        val cart: MutableList<CartItem> = remember { mutableStateListOf() }
+        cart.addAll(CartService().loadCart(sharedPreferences))
+
         Scaffold(
             topBar = {
                 Column(
@@ -75,7 +87,44 @@ class CartActivity : ComponentActivity() {
             }
         ) {
             Box(modifier = Modifier.padding(it)) {
-                
+                Column(
+                    modifier = Modifier
+                        .padding(20.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        items(
+                            items = cart
+                        ) { item ->
+                            CartComponent(
+                                onPlusClick = {
+                                    val index = cart.indexOf(item)
+                                    cart.removeAt(index)
+                                    cart.add(index, CartItem(
+                                        item.id, item.name, item.price, item.count + 1
+                                    ))
+
+                                    CartService().saveCart(sharedPreferences, cart)
+                                },
+                                onMinusClick = {
+                                    val index = cart.indexOf(item)
+                                    cart.removeAt(index)
+                                    cart.add(index, CartItem(
+                                        item.id, item.name, item.price, item.count - 1
+                                    ))
+
+                                    CartService().saveCart(sharedPreferences, cart)
+                                },
+                                cartItem = item,
+                                onRemoveClick = {
+                                    cart.remove(item)
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
