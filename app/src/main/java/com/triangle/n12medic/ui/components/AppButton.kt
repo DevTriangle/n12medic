@@ -267,7 +267,7 @@ fun CartCountButtons(
         ) {
             IconButton(
                 onClick = onMinusClick,
-                enabled = count < 2
+                enabled = count > 1
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_minus),

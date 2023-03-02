@@ -122,7 +122,7 @@ fun AnalyzesScreen(
                         fontWeight = FontWeight.W600,
                     )
                     AppIconButton(
-                        painter = painterResource(id = com.triangle.n12medic.R.drawable.ic_close),
+                        painter = painterResource(id = R.drawable.ic_close),
                         shape = CircleShape,
                         onClick = {
                             scope.launch {
@@ -244,7 +244,7 @@ fun AnalyzesScreen(
             }
         ) {
             Column(
-                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp)
+                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 100.dp)
             ) {
                 AppTextField(
                     value = searchValue,

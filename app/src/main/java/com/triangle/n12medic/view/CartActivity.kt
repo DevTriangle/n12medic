@@ -73,7 +73,10 @@ class CartActivity : ComponentActivity() {
                             fontSize = 24.sp
                         )
                         IconButton(
-                            onClick = { }
+                            onClick = {
+                                cart.clear()
+                                CartService().saveCart(sharedPreferences, cart)
+                            }
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_remove),
@@ -120,6 +123,8 @@ class CartActivity : ComponentActivity() {
                                 cartItem = item,
                                 onRemoveClick = {
                                     cart.remove(item)
+
+                                    CartService().saveCart(sharedPreferences, cart)
                                 }
                             )
                         }
