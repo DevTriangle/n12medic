@@ -4,10 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -17,12 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.triangle.n12medic.R
 import com.triangle.n12medic.ui.theme.primaryColor
 import com.triangle.n12medic.ui.theme.primaryVariantColor
 
@@ -43,7 +42,8 @@ fun AppButton(
     contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp, vertical = 16.dp),
     onClick: () -> Unit,
     elevation: ButtonElevation = ButtonDefaults.elevation(),
-    border: BorderStroke = BorderStroke(0.dp, Color.Transparent)
+    border: BorderStroke = BorderStroke(0.dp, Color.Transparent),
+    icon: Painter? = null
 ) {
     Button(
         modifier = modifier,
@@ -54,10 +54,20 @@ fun AppButton(
         elevation = elevation,
         border = border
     ) {
-        Text(
-            text = label,
-            style = textStyle
-        )
+        Row() {
+            if (icon != null) {
+                Icon(
+                    painter = icon,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(ButtonDefaults.IconSize)
+                )
+            }
+            Text(
+                text = label,
+                style = textStyle
+            )
+        }
     }
 }
 
@@ -181,5 +191,60 @@ fun PasswordKeyButton(
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold
         )
+    }
+}
+
+@Composable
+fun CartButton(
+    price: Int,
+    onClick: () -> Unit
+) {
+//        var cartPrice = 0.0
+//        for (item in inCart) {
+//            for (i in viewModel.analyzes) {
+//                if (item == i.id.toDouble()) {
+//                    cartPrice += i.price.toDouble()
+//                    break
+//                }
+//            }
+//        }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colors.primary)
+            .clickable(
+                onClick = onClick
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row() {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_cart),
+                    contentDescription = "",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    "В корзину",
+                    color = Color.White,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Text(
+                "${price} ₽",
+                color = Color.White,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }

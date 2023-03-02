@@ -20,7 +20,7 @@ class HomeViewModel:ViewModel() {
     // Дата создания: 01.03.2023 09:47
     // Автор: Triangle
 
-    val newsErrorMessage = MutableLiveData<String>()
+    val message = MutableLiveData<String>()
     val analyzesErrorMessage = MutableLiveData<String>()
 
     val analyzesCategories = arrayListOf(
@@ -47,7 +47,7 @@ class HomeViewModel:ViewModel() {
 
     fun loadNews() { // Метод для получения новостей и акций с сервера
         _news.clear()
-        newsErrorMessage.value = null
+        message.value = null
         val apiService = ApiService.getInstance()
 
         viewModelScope.launch {
@@ -56,14 +56,14 @@ class HomeViewModel:ViewModel() {
                 _news.addAll(json)
             } catch (e: java.lang.Exception) {
                 Log.d(TAG, "loadNews: $e")
-                newsErrorMessage.value = e.message
+                message.value = e.message
             }
         }
     }
 
     fun loadCatalog() { // Метод для получения каталога
         _analyzes.clear()
-        analyzesErrorMessage.value = null
+        message.value = null
 
         val apiService = ApiService.getInstance()
 
@@ -73,7 +73,7 @@ class HomeViewModel:ViewModel() {
                 _analyzes.addAll(json)
             } catch (e: java.lang.Exception) {
                 Log.d(TAG, "loadCatalog: $e")
-                analyzesErrorMessage.value = e.message
+                message.value = e.message
             }
         }
     }

@@ -15,13 +15,18 @@ import com.triangle.n12medic.R
 
 @Composable
 fun AnalysisBottomSheetContent(
-    analysis: Analysis?,
+    name: String,
+    description: String,
+    price: String,
+    timeResult: String,
+    preparation: String,
+    bio: String,
     onDismiss: () -> Unit,
     onClick: () -> Unit
 ) {
     Box() {
         Text(text = "")
-        if (analysis != null) {
+
             Column(
                 modifier = Modifier
                     .padding(20.dp),
@@ -31,7 +36,7 @@ fun AnalysisBottomSheetContent(
                     Text(
                         modifier = Modifier
                             .weight(9f),
-                        text = analysis.name,
+                        text = name,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -51,7 +56,7 @@ fun AnalysisBottomSheetContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = analysis.description,
+                    text = description,
                     fontSize = 15.sp,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -63,7 +68,7 @@ fun AnalysisBottomSheetContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = analysis.preparation,
+                    text = preparation,
                     fontSize = 15.sp,
                 )
                 Spacer(modifier = Modifier.height(55.dp))
@@ -79,7 +84,7 @@ fun AnalysisBottomSheetContent(
                             fontSize = 14.sp,
                         )
                         Text(
-                            text = analysis.timeResult,
+                            text = timeResult,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -91,7 +96,7 @@ fun AnalysisBottomSheetContent(
                             fontSize = 14.sp,
                         )
                         Text(
-                            text = analysis.bio,
+                            text = bio,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -99,13 +104,11 @@ fun AnalysisBottomSheetContent(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 AppButton(
-                    label = "Добавить за ${analysis.price} ₽",
+                    label = "Добавить за ${price} ₽",
                     onClick = onClick,
                     modifier = Modifier
                         .fillMaxWidth()
                 )
             }
         }
-    }
-
 }

@@ -1,387 +1,395 @@
 package com.triangle.n12medic.view.screens
 
-import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.flowlayout.MainAxisAlignment
+import androidx.compose.ui.zIndex
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.gson.Gson
 import com.triangle.n12medic.R
-import com.triangle.n12medic.model.Analysis
-import com.triangle.n12medic.model.News
+import com.triangle.n12medic.common.CartService
+import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.ui.components.*
 import com.triangle.n12medic.view.CartActivity
 import com.triangle.n12medic.viewmodel.HomeViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
-@SuppressLint("MutableCollectionMutableState")
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AnalyzesScreen(
     viewModel: HomeViewModel
-) { // Главный экран
+) {
     val mContext = LocalContext.current
-    var searchValue by rememberSaveable { mutableStateOf("") }
-    var isVisible by rememberSaveable { mutableStateOf(true) }
-
     val sharedPreferences = mContext.getSharedPreferences("shared", Context.MODE_PRIVATE)
 
-    val inCartJson = sharedPreferences.getString("cart", "[]")
-    val inCart: ArrayList<Double> = Gson().fromJson(inCartJson, ArrayList<Double>().javaClass)
+    var searchValue by rememberSaveable { mutableStateOf("") }
 
-    Log.d(TAG, "AnalyzesScreen: $inCart")
+    val lazyListState = rememberLazyListState()
 
-    var selectedAnalysis: Analysis? by rememberSaveable { mutableStateOf(null) }
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true,
-        confirmStateChange = {
-            if (it.ordinal == 0) {
-                selectedAnalysis = null
-            }
-            true
-        }
+    val analyzesCategories = arrayListOf(
+        "Популярные",
+        "Covid",
+        "Комплексные",
+        "Чекапы",
+        "Биохимия",
+        "Гормоны",
+        "Иммунитет",
+        "Витамины",
+        "Аллергены",
+        "Анализ крови",
+        "Анализ мочи",
+        "Анализ кала",
+        "Только в клинике"
     )
 
-    val scope = rememberCoroutineScope()
-
-    var isErrorVisible by rememberSaveable { mutableStateOf(false) }
+    var selectedCategory by rememberSaveable { mutableStateOf("Популярные") }
 
     var isRefreshing by rememberSaveable { mutableStateOf(false) }
-    var swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
-
-    var selectedCategory by rememberSaveable { mutableStateOf("Популярные") }
-    val scrollState = rememberLazyListState()
-
-    val errorMessage by viewModel.analyzesErrorMessage.observeAsState()
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            isErrorVisible = true
-        }
-    }
+    var refreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
     LaunchedEffect(Unit) {
+        viewModel.loadNews()
         viewModel.loadCatalog()
     }
 
-    LaunchedEffect(scrollState) {
-        snapshotFlow { scrollState.firstVisibleItemScrollOffset }.collect() {
-            isVisible = it == 0
+    var isNewsVisible by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { lazyListState.firstVisibleItemScrollOffset }.collect {
+            isNewsVisible = it == 0
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetShape = MaterialTheme.shapes.large.copy(bottomEnd = CornerSize(0.dp), bottomStart = CornerSize(0.dp)),
-        sheetContent = {
-                AnalysisBottomSheetContent(
-                    analysis = selectedAnalysis,
-                    onDismiss = {
-                        scope.launch {
-                            selectedAnalysis = null
-                            bottomSheetState.hide()
-                        }
-                    },
-                    onClick = {
-                        if (selectedAnalysis != null) {
-                            inCart.add(selectedAnalysis!!.id.toDouble())
+    var isAlertDialogVisible by rememberSaveable { mutableStateOf(false) }
 
-                            with(sharedPreferences.edit()) {
-                                val jsonCart = Gson().toJson(inCart)
-                                putString("cart", jsonCart)
-                                apply()
+    val message by viewModel.message.observeAsState()
+    LaunchedEffect(message) {
+        if (message != null) {
+            isAlertDialogVisible = true
+        }
+    }
+
+    var id by rememberSaveable { mutableStateOf(0) }
+    var title by rememberSaveable { mutableStateOf("") }
+    var descriptionText by rememberSaveable { mutableStateOf("") }
+    var preparation by rememberSaveable { mutableStateOf("") }
+    var timeResult by rememberSaveable { mutableStateOf("") }
+    var bio by rememberSaveable { mutableStateOf("") }
+    var price by rememberSaveable { mutableStateOf("") }
+
+    val cart = CartService().loadCart(sharedPreferences)
+
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true,
+    )
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 24.dp)
+                ) {
+                    Text(
+                        title,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.W600,
+                    )
+                    AppIconButton(
+                        painter = painterResource(id = com.triangle.n12medic.R.drawable.ic_close),
+                        shape = CircleShape,
+                        onClick = {
+                            scope.launch {
+                                modalBottomSheetState.hide()
                             }
                         }
+                    )
+                }
+                Text(
+                    "Описание",
+                    color = Color(0xFF939396),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    descriptionText,
+                    color = Color.Black,
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Подготовка",
+                    color = Color(0xFF939396),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    preparation,
+                    color = Color.Black,
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(50.dp))
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Результаты через:",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.W600,
+                            color = Color(0xFF939396)
+                        )
+                        Text(
+                            timeResult,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.W500
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Биоматериал:",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.W600,
+                            color = Color(0xFF939396)
+                        )
+                        Text(
+                            bio,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.W500
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(19.dp))
+                AppButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    label = "Добавить за $price ₽",
+                    onClick = {
+                        val index = cart.indexOfFirst { it.id == id}
+                        if (index != -1) {
+                            val lastCount = cart[index].count
+                            cart.removeAt(index)
+                            cart.add(
+                                CartItem(
+                                    id = id,
+                                    name = title,
+                                    price = price,
+                                    count = lastCount + 1
+                                )
+                            )
+                        } else {
+                            cart.add(
+                                CartItem(
+                                    id = id,
+                                    name = title,
+                                    price = price,
+                                    count = 1
+                                )
+                            )
+                        }
+
+                        CartService().saveCart(sharedPreferences, cart)
+
                         scope.launch {
-                            bottomSheetState.hide()
+                            modalBottomSheetState.hide()
                         }
                     }
                 )
+                Spacer(modifier = Modifier.height(40.dp))
+            }
         },
-        sheetState = bottomSheetState
+        sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        sheetState = modalBottomSheetState
     ) {
-        Box() {
+        SwipeRefresh(
+            state = refreshState,
+            onRefresh = {
+                isRefreshing = true
+                viewModel.loadNews()
+                viewModel.loadCatalog()
+                isRefreshing = false
+            }
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp)
+                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp)
             ) {
                 AppTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
                     value = searchValue,
-                    onValueChange = {
-                        searchValue = it
+                    onValueChange = { searchValue = it },
+                    contentPadding = PaddingValues(14.dp),
+                    placeholder = {
+                        Text(
+                            "Искать анализы",
+                            fontSize = 16.sp,
+                            color = Color(0xFF939396)
+                        )
                     },
-                    label = "Искать анализы",
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_search),
                             contentDescription = "",
-                            modifier = Modifier
-                                .size(24.dp)
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                AnimatedVisibility(visible = isNewsVisible) {
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        Text(
+                            "Акции и новости",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.W600,
+                            color = Color(0xFF939396)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LazyRow {
+                            items(viewModel.news) { item ->
+                                NewsComponent(news = item)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Text(
+                            "Каталог анализов",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.W600,
+                            color = Color(0xFF939396)
                         )
                     }
-                )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
-                SwipeRefresh(
-                    state = swipeRefreshState,
-                    onRefresh = {
-                        viewModel.loadCatalog()
-                        viewModel.loadNews()
+                Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                    for (category in analyzesCategories) {
+                        CategoryChip(
+                            selected = selectedCategory == category,
+                            label = category,
+                            onClick = { selectedCategory = category }
+                        )
                     }
-                ) {
-                    Column {
-                        AnimatedVisibility(visible = isVisible) {
-                            Column(
-                                modifier = Modifier
-                                    .verticalScroll(rememberScrollState())
-                            ) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                NewsContainer(viewModel)
-                                Spacer(modifier = Modifier.height(32.dp))
-                                Text(
-                                    text = "Каталог анализов",
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF939396)
-                                )
-                            }
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            LazyRow() {
-                                items(
-                                    items = viewModel.analyzesCategories
-                                ) { category ->
-                                    CategoryChip(
-                                        selected = category == selectedCategory,
-                                        label = category,
-                                        onClick = { selectedCategory = it }
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(24.dp))
-                            LazyColumn(
-                                state = scrollState
-                            ) {
-                                items(
-                                    items = viewModel.analyzes
-                                ) { analysis ->
-                                    if (analysis.category.lowercase() == selectedCategory.lowercase()) {
-                                        var itemInCart = false
-                                        for (i in inCart) {
-                                            if (i == analysis.id.toDouble()) {
-                                                itemInCart = true
-                                            }
-                                        }
+                }
+                LazyColumn(state = lazyListState) {
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                    items(viewModel.analyzes.filter { it.category.lowercase() == selectedCategory.lowercase() }.distinct()) { item ->
+                        var isElementInCart = false
 
-                                        CatalogCard(
-                                            analysis = analysis,
-                                            onClick = {
-                                                if (!itemInCart) {
-                                                    selectedAnalysis = analysis
-                                                    scope.launch {
-                                                        bottomSheetState.show()
-                                                    }
-                                                } else {
-                                                    inCart.remove(analysis.id.toDouble())
-                                                    selectedAnalysis = null
-                                                }
-                                            },
-                                            isInCart = itemInCart
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
-                                }
+                        for (i in cart) {
+                            if (i.id == item.id) {
+                                isElementInCart = true
+                                break
                             }
                         }
+                        CatalogCard(
+                            name = item.name,
+                            price = item.price,
+                            timeResult = item.timeResult,
+                            isInCart = isElementInCart,
+                            onClick = {
+                                id = item.id
+                                title = item.name
+                                descriptionText = item.description
+                                preparation = item.preparation
+                                timeResult = item.timeResult
+                                bio = item.bio
+                                price = item.price
 
-                        if (isErrorVisible) {
-                            AlertDialog(
-                                onDismissRequest = { isErrorVisible = false },
-                                title = {
-                                    Text(
-                                        text = "Ошибка",
-                                        fontSize = 18.sp
-                                    )
-                                },
-                                text = {
-                                    errorMessage?.let { Text(text = it) }
-                                },
-                                buttons = {
-                                    AppTextButton(
-                                        label = "Ок",
-                                        onClick = {
-                                            isErrorVisible = false
-                                        }
-                                    )
+                                scope.launch {
+                                    modalBottomSheetState.show()
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
-            AnimatedVisibility(
-                modifier = Modifier
-                    .background(Color.White)
-                    .align(Alignment.BottomCenter)
-                    .padding(20.dp),
-                visible = inCart.size > 0
-            ) {
-                var cartPrice = 0.0
-                for (item in inCart) {
-                    for (i in viewModel.analyzes) {
-                        if (item == i.id.toDouble()) {
-                            cartPrice += i.price.toDouble()
-                            break
-                        }
-                    }
-                }
 
+            if (isAlertDialogVisible) {
+                AlertDialog(
+                    onDismissRequest = {
+                        isAlertDialogVisible = false
+                    },
+                    title = {
+                        Text(
+                            "Ошибка",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.W700
+                        )
+                    },
+                    text = {
+                        Text(
+                            viewModel.message.value.toString(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.W700
+                        )
+                    },
+                    buttons = {
+                        AppTextButton(
+                            label = "OK",
+                            onClick = { isAlertDialogVisible = false }
+                        )
+                    }
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = cart.size > 0) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colors.primary)
-                        .clickable(
-                            onClick = {
-                                val intent = Intent(mContext, CartActivity::class.java)
-                                mContext.startActivity(intent)
+                        .background(Color.White)
+                        .padding(20.dp)
+                        .align(Alignment.BottomCenter)
+                        .zIndex(
+                            if (modalBottomSheetState.isVisible) {
+                                -1f
+                            } else {
+                                10f
                             }
                         )
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    var sum = 0.0
+
+                    for (item in cart) {
+                        sum += item.price.toInt() * item.count
+                    }
+
+                    CartButton(
+                        price = sum.toInt(),
                     ) {
-                        Row() {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_cart),
-                                contentDescription = "",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                "В корзину",
-                                color = Color.White,
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                        Text(
-                            "${cartPrice} ₽",
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        val intent = Intent(mContext, CartActivity::class.java)
+                        mContext.startActivity(intent)
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun NewsContainer(
-    viewModel: HomeViewModel
-) {
-    var isErrorVisible by rememberSaveable {
-        mutableStateOf(false)
-    }
-    val errorMessage by viewModel.newsErrorMessage.observeAsState()
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-            isErrorVisible = true
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadNews()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "Акции и новости",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF939396)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyRow() {
-            items(
-                items = viewModel.news
-            ) { n ->
-                NewsComponent(
-                    news = n
-                )
-            }
-        }
-    }
-
-    if (isErrorVisible) {
-        AlertDialog(
-            onDismissRequest = { isErrorVisible = false },
-            title = {
-                Text(
-                    text = "Ошибка",
-                    fontSize = 18.sp
-                )
-            },
-            text = {
-                errorMessage?.let { Text(text = it) }
-            },
-            buttons = {
-                AppTextButton(
-                    label = "Ок",
-                    onClick = {
-                        isErrorVisible = false
-                    }
-                )
-            }
-        )
     }
 }

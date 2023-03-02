@@ -5,32 +5,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.gson.annotations.Until
 import com.triangle.n12medic.model.Analysis
 
 @Composable
 fun CatalogCard(
     modifier: Modifier = Modifier,
-    analysis: Analysis,
+    name: String,
+    timeResult: String,
+    price: String,
     onClick: () -> Unit,
-    isInCart: Boolean
+    isInCart: Boolean = false
 ) {
     Box(
         modifier = modifier
+            .padding(bottom = 16.dp)
             .border(1.dp, Color(0xFFF4F4F4), MaterialTheme.shapes.medium)
             .shadow(
                 elevation = 10.dp,
@@ -46,7 +48,7 @@ fun CatalogCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = analysis.name,
+                text = name,
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
             )
@@ -61,13 +63,13 @@ fun CatalogCard(
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = analysis.timeResult,
+                        text = timeResult,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF939396)
                     )
                     Text(
-                        text = "${analysis.price} ₽",
+                        text = "${price} ₽",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold
                     )

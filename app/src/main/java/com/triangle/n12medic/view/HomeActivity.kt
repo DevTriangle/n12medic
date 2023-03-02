@@ -48,118 +48,111 @@ class HomeActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreenContent()
+                    val navHostController = rememberNavController()
+                    val navBackStackEntry = navHostController.currentBackStackEntryAsState()
+
+                    Scaffold(
+                        bottomBar = {
+                            BottomNavigationBar {
+                                BottomNavigationItem(
+                                    selected = navBackStackEntry.value?.destination?.route == "analyzes",
+                                    onClick = {
+                                        if (navBackStackEntry.value?.destination?.route != "analyzes") {
+                                            navHostController.navigate("analyzes")
+                                        }
+                                    },
+                                    label = { Text(
+                                        text = "Анализы",
+                                        fontSize = 12.sp
+                                    ) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_analyzes),
+                                            contentDescription = "",
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colors.primary,
+                                    unselectedContentColor = iconColor
+                                )
+                                BottomNavigationItem(
+                                    selected = navBackStackEntry.value?.destination?.route == "results",
+                                    onClick = {
+                                        if (navBackStackEntry.value?.destination?.route != "results") {
+                                            navHostController.navigate("results")
+                                        }
+                                    },
+                                    label = { Text(
+                                        text = "Результаты",
+                                        fontSize = 12.sp
+                                    ) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_result),
+                                            contentDescription = "",
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colors.primary,
+                                    unselectedContentColor = iconColor
+                                )
+                                BottomNavigationItem(
+                                    selected = navBackStackEntry.value?.destination?.route == "support",
+                                    onClick = {
+                                        if (navBackStackEntry.value?.destination?.route != "support") {
+                                            navHostController.navigate("support")
+                                        }
+                                    },
+                                    label = { Text(
+                                        text = "Поддержка",
+                                        fontSize = 12.sp
+                                    ) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_support),
+                                            contentDescription = "",
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colors.primary,
+                                    unselectedContentColor = iconColor
+                                )
+                                BottomNavigationItem(
+                                    selected = navBackStackEntry.value?.destination?.route == "profile",
+                                    onClick = {
+                                        if (navBackStackEntry.value?.destination?.route != "profile") {
+                                            navHostController.navigate("profile")
+                                        }
+                                    },
+                                    label = { Text(
+                                        text = "Профиль",
+                                        fontSize = 12.sp
+                                    ) },
+                                    icon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_profile),
+                                            contentDescription = "",
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                        )
+                                    },
+                                    selectedContentColor = MaterialTheme.colors.primary,
+                                    unselectedContentColor = iconColor
+                                )
+                            }
+                        },
+                        content = {
+                            Box(modifier = Modifier.padding(it)) {
+                                Navigation(navHostController = navHostController)
+                            }
+                        },
+                    )
                 }
             }
         }
-    }
-
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-    @Composable
-    fun MainScreenContent() {
-        val navHostController = rememberNavController()
-        val navBackStackEntry = navHostController.currentBackStackEntryAsState()
-
-        Scaffold(
-            bottomBar = {
-                BottomNavigationBar {
-                    BottomNavigationItem(
-                        selected = navBackStackEntry.value?.destination?.route == "analyzes",
-                        onClick = {
-                            if (navBackStackEntry.value?.destination?.route != "analyzes") {
-                                navHostController.navigate("analyzes")
-                            }
-                        },
-                        label = { Text(
-                            text = "Анализы",
-                            fontSize = 12.sp
-                        ) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_analyzes),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-                        },
-                        selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = iconColor
-                    )
-                    BottomNavigationItem(
-                        selected = navBackStackEntry.value?.destination?.route == "results",
-                        onClick = {
-                            if (navBackStackEntry.value?.destination?.route != "results") {
-                                navHostController.navigate("results")
-                            }
-                        },
-                        label = { Text(
-                            text = "Результаты",
-                            fontSize = 12.sp
-                        ) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_result),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-                        },
-                        selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = iconColor
-                    )
-                    BottomNavigationItem(
-                        selected = navBackStackEntry.value?.destination?.route == "support",
-                        onClick = {
-                            if (navBackStackEntry.value?.destination?.route != "support") {
-                                navHostController.navigate("support")
-                            }
-                        },
-                        label = { Text(
-                            text = "Поддержка",
-                            fontSize = 12.sp
-                        ) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_support),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-                        },
-                        selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = iconColor
-                    )
-                    BottomNavigationItem(
-                        selected = navBackStackEntry.value?.destination?.route == "profile",
-                        onClick = {
-                            if (navBackStackEntry.value?.destination?.route != "profile") {
-                                navHostController.navigate("profile")
-                            }
-                        },
-                        label = { Text(
-                            text = "Профиль",
-                            fontSize = 12.sp
-                        ) },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_profile),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-                        },
-                        selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = iconColor
-                    )
-                }
-            },
-            content = {
-                Box(modifier = Modifier.padding(it)) {
-                    Navigation(navHostController = navHostController)
-                }
-
-            },
-        )
     }
 
     @Composable
