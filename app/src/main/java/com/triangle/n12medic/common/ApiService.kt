@@ -38,6 +38,12 @@ interface ApiService {
     @Headers(
         "accept: application/json",
     )
+    @POST("createProfile")
+    suspend fun saveProfile(@Header("Authorization") auth: String, @Body profileInfo: Map<String, String>) : Response<JsonObject> // Сохранение карты пользователя
+
+    @Headers(
+        "accept: application/json",
+    )
     @GET("news")
     suspend fun loadNews() : List<News>
 

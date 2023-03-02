@@ -34,6 +34,7 @@ import com.triangle.n12medic.view.screens.ProfileScreen
 import com.triangle.n12medic.view.screens.ResultsScreen
 import com.triangle.n12medic.view.screens.SupportScreen
 import com.triangle.n12medic.viewmodel.HomeViewModel
+import com.triangle.n12medic.viewmodel.ProfileViewModel
 
 class HomeActivity : ComponentActivity() {
     // Класс экрана с отображением главной страницы
@@ -158,6 +159,7 @@ class HomeActivity : ComponentActivity() {
     @Composable
     private fun Navigation(navHostController: NavHostController) {
         val viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+        val profileViewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
 
         NavHost(
             navController = navHostController,
@@ -173,7 +175,7 @@ class HomeActivity : ComponentActivity() {
                 SupportScreen()
             }
             composable("profile") {
-                ProfileScreen()
+                ProfileScreen(profileViewModel)
             }
         }
     }

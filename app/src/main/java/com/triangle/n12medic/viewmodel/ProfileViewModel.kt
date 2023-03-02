@@ -1,17 +1,19 @@
 package com.triangle.n12medic.viewmodel
 
-import android.util.Log
+import android.annotation.SuppressLint
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.triangle.n12medic.common.ApiService
 import kotlinx.coroutines.launch
 
-class CardManageViewModel: ViewModel() {
-    val errorMessage = MutableLiveData<String>()
+class ProfileViewModel: ViewModel() {
     val isSuccess = MutableLiveData<Boolean>()
+    val message = MutableLiveData<String>()
 
-    fun createCard(
+    @SuppressLint("CoroutineCreationDuringComposition")
+    fun saveProfile(
         name: String,
         lastName: String,
         patronymic: String,
@@ -20,7 +22,8 @@ class CardManageViewModel: ViewModel() {
         token: String
     ) {
         isSuccess.value = null
-        errorMessage.value = null
+        message.value = null
+
         val apiService = ApiService.getInstance()
 
         viewModelScope.launch {
@@ -32,25 +35,22 @@ class CardManageViewModel: ViewModel() {
                     "bith" to bith,
                     "pol" to pol,
                 )
-                Log.d("Token", token)
                 val t = token.replace("\"", "")
-                Log.d("Token", t)
 
-                val json = apiService.createProfile("Bearer $t", profileInfo)
+                val json = apiService.saveProfile("Bearer $t", profileInfo)
 
                 if (json.code() == 200) {
                     isSuccess.value = true
                 } else if (json.code() == 403) {
                     isSuccess.value = false
-                    errorMessage.value = "Вы не авторизованы"
+                    message.value = "Вы не авторизованы"
                 } else {
                     isSuccess.value = false
-                    errorMessage.value = "Ошибка"
+                    message.value = "Ошибка"
                 }
-            } catch (e: Exception) {
+            } catch (e: java.lang.Exception) {
                 isSuccess.value = false
-                Log.d("err", e.toString())
-                errorMessage.value = e.message
+                message.value = e.message
             }
         }
     }

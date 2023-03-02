@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.triangle.n12medic.R
 import com.triangle.n12medic.common.CartService
 import com.triangle.n12medic.model.CartItem
+import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.ui.components.AppIconButton
 import com.triangle.n12medic.ui.components.CartComponent
 import com.triangle.n12medic.ui.theme.N12MedicTheme
@@ -92,43 +93,76 @@ class CartActivity : ComponentActivity() {
             Box(modifier = Modifier.padding(it)) {
                 Column(
                     modifier = Modifier
-                        .padding(20.dp)
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        items(
-                            items = cart
-                        ) { item ->
-                            CartComponent(
-                                onPlusClick = {
-                                    val index = cart.indexOf(item)
-                                    cart.removeAt(index)
-                                    cart.add(index, CartItem(
-                                        item.id, item.name, item.price, item.count + 1
-                                    ))
+                    Column {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            items(
+                                items = cart
+                            ) { item ->
+                                CartComponent(
+                                    onPlusClick = {
+                                        val index = cart.indexOf(item)
+                                        cart.removeAt(index)
+                                        cart.add(index, CartItem(
+                                            item.id, item.name, item.price, item.count + 1
+                                        ))
 
-                                    CartService().saveCart(sharedPreferences, cart)
-                                },
-                                onMinusClick = {
-                                    val index = cart.indexOf(item)
-                                    cart.removeAt(index)
-                                    cart.add(index, CartItem(
-                                        item.id, item.name, item.price, item.count - 1
-                                    ))
+                                        CartService().saveCart(sharedPreferences, cart)
+                                    },
+                                    onMinusClick = {
+                                        val index = cart.indexOf(item)
+                                        cart.removeAt(index)
+                                        cart.add(index, CartItem(
+                                            item.id, item.name, item.price, item.count - 1
+                                        ))
 
-                                    CartService().saveCart(sharedPreferences, cart)
-                                },
-                                cartItem = item,
-                                onRemoveClick = {
-                                    cart.remove(item)
+                                        CartService().saveCart(sharedPreferences, cart)
+                                    },
+                                    cartItem = item,
+                                    onRemoveClick = {
+                                        cart.remove(item)
 
-                                    CartService().saveCart(sharedPreferences, cart)
-                                }
+                                        CartService().saveCart(sharedPreferences, cart)
+                                    }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Сумма",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            var sum = 0
+                            for (item in cart) {
+                                sum += item.price.toInt() * item.count
+                            }
+                            Text(
+                                text = "${sum} ₽",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
+                    AppButton(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        label = "Перейти к оформлению заказа",
+                        onClick = {
+                            // TODO
+                        }
+                    )
                 }
             }
         }

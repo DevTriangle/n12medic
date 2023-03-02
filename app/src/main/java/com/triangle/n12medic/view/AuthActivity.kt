@@ -100,7 +100,7 @@ class AuthActivity : ComponentActivity() {
                         emailValue = it
                     },
                     error = emailError,
-                    label = "example@mail.ru"
+                    placeholder = { Text("example@mail.ru") }
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 AppButton(

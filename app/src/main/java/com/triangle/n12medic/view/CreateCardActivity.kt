@@ -142,7 +142,7 @@ class CreateCardActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = firstName,
-                label = "Имя",
+                placeholder = { Text("Имя") },
                 onValueChange = {
                     firstName = it
                 }
@@ -152,7 +152,7 @@ class CreateCardActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = patronymic,
-                label = "Отчество",
+                placeholder = { Text("Отчество") },
                 onValueChange = {
                     patronymic = it
                 }
@@ -162,7 +162,7 @@ class CreateCardActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = lastName,
-                label = "Фамилия",
+                placeholder = { Text("Фамилия") },
                 onValueChange = {
                     lastName = it
                 }
@@ -172,7 +172,7 @@ class CreateCardActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = birthday,
-                label = "Дата рождения",
+                placeholder = { Text("Дата рождения") },
                 onValueChange = {
                     birthday = it
                 }
@@ -190,7 +190,7 @@ class CreateCardActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth(),
                     value = gender,
-                    label = "Пол",
+                    placeholder = { Text("Пол") },
                     readOnly = true,
                     onValueChange = {
                         gender = it

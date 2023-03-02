@@ -380,7 +380,7 @@ fun AnalyzesScreen(
                 ) {
                     var sum = 0.0
 
-                    for (item in cart) {
+                    for (item in cart.distinct()) {
                         sum += item.price.toInt() * item.count
                     }
 
