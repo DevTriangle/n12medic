@@ -45,7 +45,8 @@ interface ApiService {
     @POST("avatar")
     suspend fun uploadImage(
         @Header("Authorization") auth: String,
-        @Part file: MultipartBody.Part
+        @Part file: MultipartBody.Part,
+        @Part type: MultipartBody.Part
     ) : Response<JsonObject> // Изменение изображения профиля
 
     @Headers(

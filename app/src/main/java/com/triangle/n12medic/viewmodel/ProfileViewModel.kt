@@ -87,13 +87,18 @@ class ProfileViewModel: ViewModel() {
             try {
                 val t = token.replace("\"", "")
 
+                val file = File(imageUrl)
+
+                Log.d(TAG, "file: ${file.path}")
+                Log.d(TAG, "type: ${contentResolver.getType(imageUrl.toUri())}")
+
                 val multipartBody = MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("file", imageUrl)
-                    .addFormDataPart("type", contentResolver.getType(imageUrl.toUri()!!))
+                    .addFormDataPart("file", file.path)
+                    .addFormDataPart("type", contentResolver.getType(imageUrl.toUri()))
                     .build()
 
-                val json = apiService.uploadImage("Bearer $t", multipartBody.part(0))
+                val json = apiService.uploadImage("Bearer $t", multipartBody.part(0), multipartBody.part(1))
 
                 if (json.code() == 200) {
                     isSuccessUploadImage.value = true
@@ -101,7 +106,7 @@ class ProfileViewModel: ViewModel() {
                     isSuccessUploadImage.value = false
                     message.value = "Вы не авторизованы"
                 } else {
-                    Log.d(TAG, "uploadImage: ${json.code()} - ${json.body()?.get("error")}")
+                    Log.d(TAG, "uploadImage: ${json.code()} - ${json.body()}")
                     isSuccessUploadImage.value = false
                     message.value = "Ошибка"
                 }
