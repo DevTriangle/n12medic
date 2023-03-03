@@ -62,8 +62,10 @@ class OrderActivity : ComponentActivity() {
         patientList.addAll(PatientService().loadPatientList(sharedPreferences))
 
         val selectedPatientList: MutableList<Patient> = remember { mutableStateListOf() }
-        if (patientList.isNotEmpty()) {
-            selectedPatientList.add(patientList[0])
+        LaunchedEffect(Unit) {
+            if (patientList.isNotEmpty()) {
+                selectedPatientList.add(patientList[0])
+            }
         }
 
         val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
@@ -73,15 +75,11 @@ class OrderActivity : ComponentActivity() {
 
         var currentExpanded by rememberSaveable { mutableStateOf("address") }
 
+        var editPatient: Patient? by remember { mutableStateOf(null) }
+
         val dateInteractionSource = remember { MutableInteractionSource() }
         if (dateInteractionSource.collectIsPressedAsState().value) {
             currentExpanded = "date"
-            scope.launch { bottomSheetState.show() }
-        }
-
-        val patientInteractionSource = remember { MutableInteractionSource() }
-        if (patientInteractionSource.collectIsPressedAsState().value) {
-            currentExpanded = "patient"
             scope.launch { bottomSheetState.show() }
         }
 
@@ -115,6 +113,16 @@ class OrderActivity : ComponentActivity() {
                             onCloseClick = {
                                 scope.launch {
                                     bottomSheetState.hide()
+                                }
+                            },
+                            onSelectClick = {
+                                scope.launch { bottomSheetState.hide() }
+                                if (editPatient != null) {
+                                    val index = selectedPatientList.indexOf(editPatient)
+                                    selectedPatientList.remove(editPatient)
+                                    selectedPatientList.add(index, it)
+                                } else {
+                                    if (!selectedPatientList.contains(it)) selectedPatientList.add(it)
                                 }
                             }
                         )
@@ -205,9 +213,16 @@ class OrderActivity : ComponentActivity() {
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Column() {
-                                    if (patientList.isNotEmpty()) {
+                                    if (selectedPatientList.size < 2) {
                                         for (patient in selectedPatientList) {
-                                            var patientValue by rememberSaveable { mutableStateOf(patient) }
+                                            var patientValue by remember { mutableStateOf(patient) }
+
+                                            val patientInteractionSource = remember { MutableInteractionSource() }
+                                            if (patientInteractionSource.collectIsPressedAsState().value) {
+                                                currentExpanded = "patient"
+                                                editPatient = patient
+                                                scope.launch { bottomSheetState.show() }
+                                            }
 
                                             AppTextField(
                                                 modifier = Modifier
@@ -216,6 +231,7 @@ class OrderActivity : ComponentActivity() {
                                                 value = "${patientValue.lastName} ${patientValue.firstName}",
                                                 onValueChange = {},
                                                 readOnly = true,
+                                                interactionSource = patientInteractionSource,
                                                 trailingIcon = {
                                                     Icon(
                                                         painter = painterResource(id = R.drawable.ic_down),
@@ -231,6 +247,12 @@ class OrderActivity : ComponentActivity() {
                                                 }
                                             )
                                         }
+                                    } else {
+                                        for (patient in selectedPatientList) {
+                                            var patientValue by remember { mutableStateOf(patient) }
+
+
+                                        }
                                     }
                                 }
                                 AppButton(
@@ -238,7 +260,9 @@ class OrderActivity : ComponentActivity() {
                                         .fillMaxWidth(),
                                     label = "Добавить еще пациента",
                                     onClick = {
-                                        //todo add patient
+                                        currentExpanded = "patient"
+                                        editPatient = null
+                                        scope.launch { bottomSheetState.show() }
                                     },
                                     border = BorderStroke(1.dp, MaterialTheme.colors.primary),
                                     colors = ButtonDefaults.buttonColors(

@@ -119,6 +119,8 @@ class CreateCardActivity : ComponentActivity() {
         val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
         val viewModel = ViewModelProvider(this)[CardManageViewModel::class.java]
 
+        val isNew = intent.getBooleanExtra("isNew", false) // Если true добавлять нового пациента
+
         var firstName by rememberSaveable { mutableStateOf("") }
         var patronymic by rememberSaveable { mutableStateOf("") }
         var lastName by rememberSaveable { mutableStateOf("") }
@@ -139,8 +141,13 @@ class CreateCardActivity : ComponentActivity() {
 
                 PatientService().savePatientList(sharedPreferences, patientList)
 
-                val intent = Intent(mContext,HomeActivity::class.java)
-                startActivity(intent)
+                if (isNew) {
+                    val intent = Intent(mContext, OrderActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    val intent = Intent(mContext,HomeActivity::class.java)
+                    startActivity(intent)
+                }
             }
         }
 
