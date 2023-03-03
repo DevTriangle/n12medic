@@ -7,4 +7,5 @@
     <string name="title_activity_create_card">CreateCardActivity</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_activity_cart">CartActivity</string>
+    <string name="title_activity_order">OrderActivity</string>
 </resources>

@@ -151,7 +151,7 @@ fun AppIconButton(
 ) {
     Box(
         modifier = modifier
-            .size(size)
+            .size(size + 5.dp)
             .clip(shape)
             .background(colors.backgroundColor(enabled = true).value, shape)
             .clickable(
@@ -161,7 +161,7 @@ fun AppIconButton(
         Icon(
             modifier = Modifier
                 .padding(contentPadding)
-                .size(size - 7.dp),
+                .size(size),
             painter = painter,
             contentDescription = "",
             tint = Color(0xFF7E7E9A)

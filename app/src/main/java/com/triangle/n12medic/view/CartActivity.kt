@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +53,7 @@ class CartActivity : ComponentActivity() {
 
     @Composable
     fun CartContent() {
+        val mContext = LocalContext.current
         val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
 
         val cart: MutableList<CartItem> = remember { mutableStateListOf() }
@@ -166,7 +168,8 @@ class CartActivity : ComponentActivity() {
                             .fillMaxWidth(),
                         label = "Перейти к оформлению заказа",
                         onClick = {
-                            // TODO
+                            val intent = Intent(mContext, OrderActivity::class.java)
+                            startActivity(intent)
                         }
                     )
                 }
