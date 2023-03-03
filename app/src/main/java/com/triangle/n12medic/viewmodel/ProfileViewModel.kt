@@ -25,8 +25,10 @@ class ProfileViewModel: ViewModel() {
     val uploadMessage = MutableLiveData<String>()
 
     val selectedImage = MutableLiveData<String>()
-    fun setImage(imageUrl: String) {
-        selectedImage.value = imageUrl
+    fun setImage(imageUrl: String?) {
+        if (imageUrl != null) {
+            selectedImage.value = imageUrl
+        }
     }
 
     @SuppressLint("CoroutineCreationDuringComposition")

@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.LinearGradient
 val primaryColor = Color(0xFF1A6FEE)
 val primaryVariantColor = Color(0xFF57A9FF)
 val iconColor = Color(0xFFB8C1CC)
+val errorColor = Color(0xFFFD3535)
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)

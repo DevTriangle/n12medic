@@ -30,6 +30,8 @@ import androidx.navigation.NavHostController
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 import com.triangle.n12medic.R
+import com.triangle.n12medic.common.PatientService
+import com.triangle.n12medic.model.Patient
 import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.viewmodel.ProfileViewModel
@@ -44,11 +46,23 @@ fun ProfileScreen(
     val mContext = LocalContext.current
     val sharedPreferences = mContext.getSharedPreferences("shared", ComponentActivity.MODE_PRIVATE)
 
-    var firstName by rememberSaveable { mutableStateOf("") }
-    var patronymic by rememberSaveable { mutableStateOf("") }
-    var lastName by rememberSaveable { mutableStateOf("") }
-    var birthday by rememberSaveable { mutableStateOf("") }
-    var gender by rememberSaveable { mutableStateOf("") }
+    val patientList: MutableList<Patient> = remember { mutableStateListOf() }
+    patientList.addAll(PatientService().loadPatientList(sharedPreferences))
+
+    var firstName by rememberSaveable { mutableStateOf(patientList[0].firstName) }
+    var patronymic by rememberSaveable { mutableStateOf(patientList[0].middlename) }
+    var lastName by rememberSaveable { mutableStateOf(patientList[0].lastName) }
+    var birthday by rememberSaveable { mutableStateOf(patientList[0].bith) }
+    var gender by rememberSaveable { mutableStateOf(patientList[0].pol) }
+
+    if (patientList.isNotEmpty()) {
+        firstName = patientList[0].firstName
+        patronymic = patientList[0].middlename
+        lastName = patientList[0].lastName
+        birthday = patientList[0].bith
+        gender = patientList[0].pol
+        viewModel.setImage(patientList[0].image)
+    }
 
     var genderExpanded by rememberSaveable { mutableStateOf(false) }
     val token = sharedPreferences.getString("token", "")
@@ -66,6 +80,9 @@ fun ProfileScreen(
     val isSuccessUploadMessage by viewModel.isSuccessUploadImage.observeAsState()
     LaunchedEffect(isSuccessUploadMessage) {
         if (isSuccessUploadMessage == true && isSuccess == true) {
+            patientList.add(0, Patient(firstName, lastName, patronymic, birthday, gender, image))
+            PatientService().savePatientList(sharedPreferences, patientList)
+
             navController.navigate("analyzes")
         }
     }

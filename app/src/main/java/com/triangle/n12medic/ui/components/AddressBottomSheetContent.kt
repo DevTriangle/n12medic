@@ -1,7 +1,7 @@
 package com.triangle.n12medic.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,9 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.triangle.n12medic.model.Analysis
 import com.triangle.n12medic.R
-import kotlinx.coroutines.launch
 
 // Содержание экрана формирования адреса сдачи анализов
 @Composable
@@ -34,6 +32,7 @@ fun AddressBottomSheetContent(
     var entrance by rememberSaveable { mutableStateOf("") }
     var floor by rememberSaveable { mutableStateOf("") }
     var doorphone by rememberSaveable { mutableStateOf("") }
+    var addressName by rememberSaveable { mutableStateOf("") }
 
     var saveAddress by rememberSaveable { mutableStateOf(false) }
 
@@ -189,27 +188,55 @@ fun AddressBottomSheetContent(
         Spacer(modifier = Modifier.height(6.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Сохранить этот адрес?",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
-            Switch(
+            androidx.compose.material3.Switch(
                 checked = saveAddress,
                 onCheckedChange = {
                     saveAddress = it
                 },
-                colors = SwitchDefaults.colors(
+                colors = androidx.compose.material3.SwitchDefaults.colors(
                     uncheckedTrackColor = Color(0xFFEBEBEB),
-                    uncheckedTrackAlpha = 1f,
                     uncheckedThumbColor = Color.White,
                     checkedTrackColor = MaterialTheme.colors.primary,
-                    checkedTrackAlpha = 1f,
-                    checkedThumbColor = Color.White
+                    checkedThumbColor = Color.White,
+                    checkedBorderColor = MaterialTheme.colors.primary,
+                    uncheckedBorderColor = Color(0xFFEBEBEB)
                 )
             )
         }
+        Spacer(modifier = Modifier.height(14.dp))
+        AnimatedVisibility(visible = saveAddress) {
+            Column() {
+                AppTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = addressName,
+                    onValueChange = { addressName = it },
+                    label = {
+                        Text(
+                            text = "Название: например дом, работа",
+                            fontSize = 14.sp,
+                            color = Color(0xFF939396)
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+        AppButton(
+            modifier = Modifier
+                .fillMaxWidth(),
+            label = "Подтвердить",
+            onClick = {
+
+            }
+        )
     }
 }

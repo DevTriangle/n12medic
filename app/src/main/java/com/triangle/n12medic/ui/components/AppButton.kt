@@ -18,10 +18,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import com.triangle.n12medic.R
 import com.triangle.n12medic.ui.theme.primaryColor
 import com.triangle.n12medic.ui.theme.primaryVariantColor
@@ -44,7 +41,7 @@ fun AppButton(
     onClick: () -> Unit,
     elevation: ButtonElevation = ButtonDefaults.elevation(),
     border: BorderStroke = BorderStroke(0.dp, Color.Transparent),
-    icon: Painter? = null
+    icon: Painter? = null,
 ) {
     Button(
         modifier = modifier,

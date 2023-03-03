@@ -27,6 +27,8 @@ import com.triangle.n12medic.ui.components.AppTextButton
 import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 import com.triangle.n12medic.R
+import com.triangle.n12medic.common.PatientService
+import com.triangle.n12medic.model.Patient
 import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.viewmodel.CardManageViewModel
 
@@ -129,6 +131,14 @@ class CreateCardActivity : ComponentActivity() {
         val isSuccess by viewModel.isSuccess.observeAsState()
         LaunchedEffect(isSuccess) {
             if (isSuccess != null) {
+                val patientList = PatientService().loadPatientList(sharedPreferences)
+                patientList.add(
+                    Patient(
+                    firstName, lastName, patronymic, birthday, gender, ""
+                ))
+
+                PatientService().savePatientList(sharedPreferences, patientList)
+
                 val intent = Intent(mContext,HomeActivity::class.java)
                 startActivity(intent)
             }
@@ -201,37 +211,29 @@ class CreateCardActivity : ComponentActivity() {
                             contentDescription = "",
                             tint = Color(0xFF7E7E9A)
                         )
-                        DropdownMenu(
-                            expanded = genderExpanded,
-                            onDismissRequest = { genderExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    gender = "Не выбран"
-                                    genderExpanded = false
-                                }
-                            ) {
-                                Text(text = "Не выбран")
-                            }
-                            DropdownMenuItem(
-                                onClick = {
-                                    gender = "Мужской"
-                                    genderExpanded = false
-                                }
-                            ) {
-                                Text(text = "Мужской")
-                            }
-                            DropdownMenuItem(
-                                onClick = {
-                                    gender = "Женский"
-                                    genderExpanded = false
-                                }
-                            ) {
-                                Text(text = "Женский")
-                            }
-                        }
                     }
                 )
+                DropdownMenu(
+                    expanded = genderExpanded,
+                    onDismissRequest = { genderExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        onClick = {
+                            gender = "Мужской"
+                            genderExpanded = false
+                        }
+                    ) {
+                        Text(text = "Мужской")
+                    }
+                    DropdownMenuItem(
+                        onClick = {
+                            gender = "Женский"
+                            genderExpanded = false
+                        }
+                    ) {
+                        Text(text = "Женский")
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(48.dp))
             AppButton(
