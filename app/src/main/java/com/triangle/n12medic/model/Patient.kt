@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName
 
 @Keep
 data class Patient(
-    @SerializedName("firstname") val firstName: String,
-    @SerializedName("lastname") val lastName: String,
-    @SerializedName("middlename") val middlename: String,
-    @SerializedName("bith") val bith: String,
-    @SerializedName("pol") val pol: String,
-    @SerializedName("image") val image: String?,
-    @SerializedName("cart") val cart: MutableList<CartItem>?
+    @SerializedName("firstname") var firstName: String,
+    @SerializedName("lastname") var lastName: String,
+    @SerializedName("middlename") var middlename: String,
+    @SerializedName("bith") var bith: String,
+    @SerializedName("pol") var pol: String,
+    @SerializedName("image") var image: String?,
+    @SerializedName("cart") var cart: MutableList<CartItem>?
 )

@@ -24,7 +24,8 @@
             android:name=".view.OrderActivity"
             android:exported="false"
             android:label="@string/title_activity_order"
-            android:theme="@style/Theme.N12Medic">
+            android:theme="@style/Theme.N12Medic"
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

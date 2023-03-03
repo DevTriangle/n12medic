@@ -20,7 +20,8 @@ import com.triangle.n12medic.R
 // Содержание экрана формирования адреса сдачи анализов
 @Composable
 fun AddressBottomSheetContent(
-    onMapIconClick: () -> Unit
+    onMapIconClick: () -> Unit,
+    onAddressSelect: (String) -> Unit
 ) {
     var address by rememberSaveable { mutableStateOf("") }
 
@@ -235,7 +236,7 @@ fun AddressBottomSheetContent(
                 .fillMaxWidth(),
             label = "Подтвердить",
             onClick = {
-
+                onAddressSelect(address)
             }
         )
     }

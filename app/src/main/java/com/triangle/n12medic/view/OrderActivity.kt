@@ -87,6 +87,8 @@ class OrderActivity : ComponentActivity() {
 
         var address by rememberSaveable { mutableStateOf("") }
         var date by rememberSaveable { mutableStateOf("") }
+        var phone by rememberSaveable { mutableStateOf("") }
+        var comment by rememberSaveable { mutableStateOf("") }
 
         var currentExpanded by rememberSaveable { mutableStateOf("address") }
 
@@ -112,6 +114,12 @@ class OrderActivity : ComponentActivity() {
                         AddressBottomSheetContent(
                             onMapIconClick = {
 
+                            },
+                            onAddressSelect = {
+                                scope.launch {
+                                    bottomSheetState.hide()
+                                }
+                                address = it
                             }
                         )
                     }
@@ -123,6 +131,9 @@ class OrderActivity : ComponentActivity() {
                                 }
                             },
                             onTimePick = {
+                                scope.launch {
+                                    bottomSheetState.hide()
+                                }
                                 date = it
                             }
                         )
@@ -136,14 +147,12 @@ class OrderActivity : ComponentActivity() {
                                 }
                             },
                             onSelectClick = { p ->
-                                Log.d(TAG, "OrderScreen: $p")
                                 scope.launch { bottomSheetState.hide() }
-                                Log.d(TAG, "OrderScreen editPatient: $editPatient")
                                 if (editPatient != null) {
                                     val index = selectedPatientList.indexOf(editPatient)
-                                    selectedPatientList.removeAt(index)
+                                    selectedPatientList[index] = p
 
-                                    selectedPatientList.add(p)
+                                    //selectedPatientList.add(p)
                                 } else {
                                     if (!selectedPatientList.contains(p)) selectedPatientList.add(p)
                                 }
@@ -206,8 +215,8 @@ class OrderActivity : ComponentActivity() {
                                 AppTextField(
                                     modifier = Modifier
                                         .fillMaxWidth(),
-                                    value = address,
-                                    onValueChange = { address = it },
+                                    value = date,
+                                    onValueChange = { date = it },
                                     readOnly = true,
                                     interactionSource = dateInteractionSource,
                                     label = {
@@ -239,8 +248,6 @@ class OrderActivity : ComponentActivity() {
                                 Column() {
                                     if (selectedPatientList.size < 2) {
                                         for (patient in selectedPatientList) {
-                                            var patientValue by remember { mutableStateOf(patient) }
-
                                             val patientInteractionSource = remember { MutableInteractionSource() }
                                             if (patientInteractionSource.collectIsPressedAsState().value) {
                                                 currentExpanded = "patient"
@@ -252,7 +259,7 @@ class OrderActivity : ComponentActivity() {
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .padding(bottom = 16.dp),
-                                                value = "${patientValue.lastName} ${patientValue.firstName}",
+                                                value = "${patient.lastName} ${patient.firstName}",
                                                 onValueChange = {},
                                                 readOnly = true,
                                                 interactionSource = patientInteractionSource,
@@ -265,7 +272,7 @@ class OrderActivity : ComponentActivity() {
                                                 },
                                                 leadingIcon = {
                                                     Image(
-                                                        painter = if (patientValue.pol == "Мужской") painterResource(id = R.drawable.ic_male) else painterResource(id = R.drawable.ic_female),
+                                                        painter = if (patient.pol == "Мужской") painterResource(id = R.drawable.ic_male) else painterResource(id = R.drawable.ic_female),
                                                         contentDescription = ""
                                                     )
                                                 }
@@ -332,9 +339,8 @@ class OrderActivity : ComponentActivity() {
                                 AppTextField(
                                     modifier = Modifier
                                         .fillMaxWidth(),
-                                    value = address,
-                                    onValueChange = { address = it },
-                                    readOnly = true,
+                                    value = phone,
+                                    onValueChange = { phone = it },
                                     label = {
                                         Text(
                                             text = "Телефон *",
@@ -377,9 +383,8 @@ class OrderActivity : ComponentActivity() {
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(128.dp),
-                                        value = address,
-                                        onValueChange = { address = it },
-                                        readOnly = true,
+                                        value = comment,
+                                        onValueChange = { comment = it },
                                         placeholder = {
                                             Text(
                                                 text = "Можете оставить свои пожелания",

@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.triangle.n12medic.R
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Calendar
 
 // Экран выбора даты
@@ -45,7 +47,7 @@ fun SelectDateBottomSheetContent(
         "10:00", "13:00", "14:00", "15:00", "16:00", "18:00", "19:00"
     )
 
-    val displayDateFormat = SimpleDateFormat("dd MMMM")
+    val displayDateFormat = SimpleDateFormat("d")
     val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy")
 
     val calendar = Calendar.getInstance()
@@ -57,9 +59,30 @@ fun SelectDateBottomSheetContent(
     val datePicker = DatePickerDialog(
         mContext,
         { _, year: Int, month: Int, day: Int ->
-            val d = simpleDateFormat.parse("$day.$month.$year")
+            val d = simpleDateFormat.parse("$day.${month + 1}.$year")
 
-            displayDate = displayDateFormat.format(d)
+            var monthText = ""
+            when(month) {
+                0 -> { monthText = "Января" }
+                1 -> { monthText = "Февраля" }
+                2 -> { monthText = "Марта" }
+                3 -> { monthText = "Апреля" }
+                4 -> { monthText = "Мая" }
+                5 -> { monthText = "Июня" }
+                6 -> { monthText = "Июля" }
+                7 -> { monthText = "Августа" }
+                8 -> { monthText = "Сентября" }
+                9 -> { monthText = "Октября" }
+                10 -> { monthText = "Ноября" }
+                11 -> { monthText = "Декабря" }
+            }
+
+            if (LocalDateTime.now().dayOfMonth == day) {
+                displayDate = "Сегодня, ${displayDateFormat.format(d)} $monthText"
+            } else {
+                displayDate = "${displayDateFormat.format(d)} $monthText"
+            }
+
         }, mYear, mMonth, mDay
     )
 
