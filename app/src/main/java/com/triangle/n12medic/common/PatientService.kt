@@ -3,6 +3,7 @@ package com.triangle.n12medic.common
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.model.Patient
 
 class PatientService {
@@ -21,6 +22,7 @@ class PatientService {
                     jsonObject.get("bith").asString,
                     jsonObject.get("pol").asString,
                     jsonObject.get("image").asString,
+                    ArrayList<CartItem>().toMutableList()
                 )
             )
         }

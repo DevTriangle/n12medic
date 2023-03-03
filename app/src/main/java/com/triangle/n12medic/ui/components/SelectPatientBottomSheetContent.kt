@@ -1,6 +1,8 @@
 package com.triangle.n12medic.ui.components
 
+import android.content.ContentValues.TAG
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,6 +35,7 @@ fun SelectPatientBottomSheetContent(
 ) {
     val mContext = LocalContext.current
     var selectedPatient: Patient? by remember { mutableStateOf(null) }
+
     Column(
         modifier = Modifier
             .padding(20.dp)
@@ -69,6 +72,7 @@ fun SelectPatientBottomSheetContent(
                     patient = patient,
                     selected = selected,
                     onSelect = {
+                        Log.d(TAG, "SelectPatientBottomSheetContent: $patient")
                         selectedPatient = it
                     }
                 )
@@ -104,6 +108,7 @@ fun SelectPatientBottomSheetContent(
             label = "Подтвердить",
             enabled = selectedPatient != null,
             onClick = {
+                Log.d(TAG, "SelectPatientBottomSheetContent //: $selectedPatient")
                 onSelectClick(selectedPatient!!)
             }
         )

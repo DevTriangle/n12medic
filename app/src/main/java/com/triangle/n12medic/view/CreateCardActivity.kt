@@ -28,6 +28,7 @@ import com.triangle.n12medic.ui.components.AppTextField
 import com.triangle.n12medic.ui.theme.N12MedicTheme
 import com.triangle.n12medic.R
 import com.triangle.n12medic.common.PatientService
+import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.model.Patient
 import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.viewmodel.CardManageViewModel
@@ -136,7 +137,7 @@ class CreateCardActivity : ComponentActivity() {
                 val patientList = PatientService().loadPatientList(sharedPreferences)
                 patientList.add(
                     Patient(
-                    firstName, lastName, patronymic, birthday, gender, ""
+                    firstName, lastName, patronymic, birthday, gender, "", ArrayList<CartItem>().toMutableList()
                 ))
 
                 PatientService().savePatientList(sharedPreferences, patientList)

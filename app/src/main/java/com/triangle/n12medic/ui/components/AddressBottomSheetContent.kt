@@ -47,7 +47,7 @@ fun AddressBottomSheetContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp)
+                .padding(vertical = 4.dp)
         ) {
             Text(
                 "Адрес сдачи анализов",

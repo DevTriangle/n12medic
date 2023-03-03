@@ -31,6 +31,7 @@ import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 import com.triangle.n12medic.R
 import com.triangle.n12medic.common.PatientService
+import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.model.Patient
 import com.triangle.n12medic.ui.components.AppButton
 import com.triangle.n12medic.ui.components.AppTextField
@@ -80,7 +81,7 @@ fun ProfileScreen(
     val isSuccessUploadMessage by viewModel.isSuccessUploadImage.observeAsState()
     LaunchedEffect(isSuccessUploadMessage) {
         if (isSuccessUploadMessage == true && isSuccess == true) {
-            patientList.add(0, Patient(firstName, lastName, patronymic, birthday, gender, image))
+            patientList.add(0, Patient(firstName, lastName, patronymic, birthday, gender, image, ArrayList<CartItem>().toMutableList()))
             PatientService().savePatientList(sharedPreferences, patientList)
 
             navController.navigate("analyzes")

@@ -1,7 +1,9 @@
 package com.triangle.n12medic.view
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
@@ -56,13 +58,26 @@ class OrderActivity : ComponentActivity() {
         val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
 
         val cart: MutableList<CartItem> = remember { mutableStateListOf() }
-        cart.addAll(CartService().loadCart(sharedPreferences))
-
         val patientList: MutableList<Patient> = remember { mutableStateListOf() }
-        patientList.addAll(PatientService().loadPatientList(sharedPreferences))
-
         val selectedPatientList: MutableList<Patient> = remember { mutableStateListOf() }
         LaunchedEffect(Unit) {
+            cart.addAll(CartService().loadCart(sharedPreferences))
+            val tPatientList = PatientService().loadPatientList(sharedPreferences)
+            for (p in tPatientList) {
+                patientList.add(Patient(
+                    p.firstName,
+                    p.lastName,
+                    p.middlename,
+                    p.bith,
+                    p.pol,
+                    p.image,
+                    cart
+                ))
+
+                Log.d(TAG, "patientList.add: ${cart.size}")
+                Log.d(TAG, "patientList.size: ${patientList.size}")
+            }
+
             if (patientList.isNotEmpty()) {
                 selectedPatientList.add(patientList[0])
             }
@@ -101,9 +116,14 @@ class OrderActivity : ComponentActivity() {
                         )
                     }
                     "date" -> {
-                        AddressBottomSheetContent(
-                            onMapIconClick = {
-
+                        SelectDateBottomSheetContent(
+                            onCloseClick = {
+                                scope.launch {
+                                    bottomSheetState.hide()
+                                }
+                            },
+                            onTimePick = {
+                                date = it
                             }
                         )
                     }
@@ -115,15 +135,19 @@ class OrderActivity : ComponentActivity() {
                                     bottomSheetState.hide()
                                 }
                             },
-                            onSelectClick = {
+                            onSelectClick = { p ->
+                                Log.d(TAG, "OrderScreen: $p")
                                 scope.launch { bottomSheetState.hide() }
+                                Log.d(TAG, "OrderScreen editPatient: $editPatient")
                                 if (editPatient != null) {
                                     val index = selectedPatientList.indexOf(editPatient)
-                                    selectedPatientList.remove(editPatient)
-                                    selectedPatientList.add(index, it)
+                                    selectedPatientList.removeAt(index)
+
+                                    selectedPatientList.add(p)
                                 } else {
-                                    if (!selectedPatientList.contains(it)) selectedPatientList.add(it)
+                                    if (!selectedPatientList.contains(p)) selectedPatientList.add(p)
                                 }
+                                Log.d(TAG, "OrderScreen: ${selectedPatientList.size}")
                             }
                         )
                     }
@@ -249,9 +273,38 @@ class OrderActivity : ComponentActivity() {
                                         }
                                     } else {
                                         for (patient in selectedPatientList) {
-                                            var patientValue by remember { mutableStateOf(patient) }
+                                            val patientInteractionSource = remember { MutableInteractionSource() }
+                                            if (patientInteractionSource.collectIsPressedAsState().value) {
+                                                currentExpanded = "patient"
+                                                editPatient = patient
+                                                scope.launch { bottomSheetState.show() }
+                                            }
 
+                                            OrderPatientCard(
+                                                patient = patient,
+                                                cart = cart,
+                                                interactionSource = patientInteractionSource,
+                                                onRemoveClick = {
+                                                    selectedPatientList.remove(patient)
+                                                },
+                                                onPatientCartChange = { cart ->
+                                                    val index = selectedPatientList.indexOf(patient)
+                                                    selectedPatientList.remove(patient)
 
+                                                    selectedPatientList.add(index, Patient(
+                                                        firstName = patient.firstName,
+                                                        lastName = patient.lastName,
+                                                        middlename = patient.middlename,
+                                                        bith = patient.bith,
+                                                        pol = patient.pol,
+                                                        image = patient.image,
+                                                        cart = cart
+                                                    ))
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(16.dp))
+
+                                            Log.d(TAG, "OrderScreen CART: ${cart.size}")
                                         }
                                     }
                                 }
@@ -379,8 +432,8 @@ class OrderActivity : ComponentActivity() {
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     var count = 0
-                                    for (item in cart.distinct()) {
-                                        count += item.count
+                                    for (patient in selectedPatientList.distinct()) {
+                                        count += patient.cart?.size ?: 0
                                     }
                                     Text(
                                         text = "$count анализ",
@@ -388,8 +441,10 @@ class OrderActivity : ComponentActivity() {
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     var sum = 0
-                                    for (item in cart.distinct()) {
-                                        sum += item.price.toInt() * item.count
+                                    for (patient in selectedPatientList.distinct()) {
+                                        for (item in patient.cart!!) {
+                                            sum += item.price.toInt()
+                                        }
                                     }
                                     Text(
                                         text = "${sum} ₽",

@@ -1,8 +1,10 @@
 package com.triangle.n12medic.view
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -53,7 +55,8 @@ class SplashScreen : ComponentActivity() {
                             val intent = Intent(mContext, OnboardActivity::class.java)
                             startActivity(intent)
                         } else {
-                            if (token != null) {
+                            if (token != null && token != "") {
+                                Log.d(TAG, "onCreate: $token")
                                 if (passwordSkipped) {
                                     val intent = Intent(mContext, CreatePasswordActivity::class.java)
                                     startActivity(intent)

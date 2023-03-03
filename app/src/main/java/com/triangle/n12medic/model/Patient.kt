@@ -11,4 +11,5 @@ data class Patient(
     @SerializedName("bith") val bith: String,
     @SerializedName("pol") val pol: String,
     @SerializedName("image") val image: String?,
+    @SerializedName("cart") val cart: MutableList<CartItem>?
 )
