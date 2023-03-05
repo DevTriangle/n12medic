@@ -1,17 +1,21 @@
 package com.triangle.n12medic.view
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.triangle.n12medic.R
 import com.triangle.n12medic.common.CartService
 import com.triangle.n12medic.common.PatientService
@@ -32,10 +41,31 @@ import com.triangle.n12medic.model.CartItem
 import com.triangle.n12medic.model.Patient
 import com.triangle.n12medic.ui.components.*
 import com.triangle.n12medic.ui.theme.N12MedicTheme
+import com.triangle.n12medic.viewmodel.OrderViewModel
 import kotlinx.coroutines.launch
 
 class OrderActivity : ComponentActivity() {
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
+            }
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
+            } else -> {
+            // No location access granted.
+        }
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         super.onCreate(savedInstanceState)
         setContent {
             N12MedicTheme {
@@ -56,6 +86,36 @@ class OrderActivity : ComponentActivity() {
         val mContext = LocalContext.current
         val scope = rememberCoroutineScope()
         val sharedPreferences = this.getSharedPreferences("shared", MODE_PRIVATE)
+        val viewModel = ViewModelProvider(this)[OrderViewModel::class.java]
+
+        LaunchedEffect(Unit) {
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                )
+            )
+
+            if (ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d(TAG, "OrderScreen: ${ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )}")
+                viewModel.getLocationAddress(fusedLocationClient)
+            }
+        }
+
+        val addressValue by viewModel.address.observeAsState()
+        val lat by viewModel.lat.observeAsState()
+        val lon by viewModel.lon.observeAsState()
+        val alt by viewModel.alt.observeAsState()
 
         val cart: MutableList<CartItem> = remember { mutableStateListOf() }
         val patientList: MutableList<Patient> = remember { mutableStateListOf() }
@@ -120,7 +180,11 @@ class OrderActivity : ComponentActivity() {
                                     bottomSheetState.hide()
                                 }
                                 address = it
-                            }
+                            },
+                            lat = lat.toString(),
+                            lon = lon.toString(),
+                            alt = alt.toString(),
+                            address = addressValue.toString()
                         )
                     }
                     "date" -> {

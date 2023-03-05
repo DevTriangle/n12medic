@@ -14,7 +14,9 @@ private val DarkColorPalette = darkColors(
     primaryVariant = primaryVariantColor,
     secondary = Teal200,
     background = Color.White,
-    error = errorColor
+    error = errorColor,
+    onBackground = Color.Black,
+    onSurface = Color.Black
 )
 
 private val LightColorPalette = lightColors(
@@ -23,16 +25,14 @@ private val LightColorPalette = lightColors(
     primaryVariant = primaryVariantColor,
     secondary = Teal200,
     background = Color.White,
-    error = errorColor
+    error = errorColor,
+    onBackground = Color.Black,
+    onSurface = Color.Black
 )
 
 @Composable
 fun N12MedicTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
-    }
+    val colors = LightColorPalette
 
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(Color.White, true)

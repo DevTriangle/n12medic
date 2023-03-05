@@ -1,5 +1,6 @@
 package com.triangle.n12medic.ui.components
 
+import android.location.Address
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -21,13 +22,17 @@ import com.triangle.n12medic.R
 @Composable
 fun AddressBottomSheetContent(
     onMapIconClick: () -> Unit,
-    onAddressSelect: (String) -> Unit
+    onAddressSelect: (String) -> Unit,
+    lat: String,
+    lon: String,
+    alt: String,
+    address: String
 ) {
-    var address by rememberSaveable { mutableStateOf("") }
+    //var address by rememberSaveable { mutableStateOf("") }
 
-    var long by rememberSaveable { mutableStateOf("") }
-    var lat by rememberSaveable { mutableStateOf("") }
-    var height by rememberSaveable { mutableStateOf("") }
+//    var long by rememberSaveable { mutableStateOf("") }
+//    var lat by rememberSaveable { mutableStateOf("") }
+//    var height by rememberSaveable { mutableStateOf("") }
 
     var flatNum by rememberSaveable { mutableStateOf("") }
     var entrance by rememberSaveable { mutableStateOf("") }
@@ -69,7 +74,9 @@ fun AddressBottomSheetContent(
             modifier = Modifier
                 .fillMaxWidth(),
             value = address,
-            onValueChange = { address = it },
+            onValueChange = {
+                // address = it
+                            },
             label = {
                 Text(
                     text = "Ваш адрес",
@@ -87,8 +94,9 @@ fun AddressBottomSheetContent(
                 modifier = Modifier
                     .fillMaxWidth(0.35f)
                     .padding(end = 12.dp),
-                value = long,
-                onValueChange = { long = it },
+                value = lon,
+                onValueChange = {  },
+                readOnly = true,
                 label = {
                     Text(
                         text = "Долгота",
@@ -102,7 +110,8 @@ fun AddressBottomSheetContent(
                     .fillMaxWidth(0.7f)
                     .padding(end = 12.dp),
                 value = lat,
-                onValueChange = { lat = it },
+                onValueChange = {  },
+                readOnly = true,
                 label = {
                     Text(
                         text = "Широта",
@@ -114,8 +123,9 @@ fun AddressBottomSheetContent(
             AppTextField(
                 modifier = Modifier
                     .fillMaxWidth(1f),
-                value = height,
-                onValueChange = { height = it },
+                value = alt,
+                onValueChange = {  },
+                readOnly = true,
                 label = {
                     Text(
                         text = "Высота",
